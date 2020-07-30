@@ -17,7 +17,7 @@ using namespace std;
 camera_frame_struct temika_frame;
 
 int horizontal_window = 5;
-int coordinates_width;
+int slope_window = 5;
 
 int main(int argc, char **argv)
 {
@@ -28,43 +28,10 @@ int main(int argc, char **argv)
 	//Allocate a big enough array to write full profile
 	double *full_profile = (double*) malloc(sizeof(double)*(2*horizontal_window + 1)*3); 
 
-
-	cout << temika_frame.size_x << endl;
-	cout << temika_frame.size_y << endl;
-
 	//Get profile
-	ct::Vector position_vector(928, 5);
-	coordinates_width = profile(im_array, temika_frame.size_x, temika_frame.size_x, full_profile, position_vector, ct::x, horizontal_window);
-	printf("coordinates_width = %d\n", coordinates_width);
+	ct::Vector position_vector(196, 294);
+	ct::Vector center(160, 300);
 
-	if (coordinates_width == -1)
-	{
-		printf("Off frame\n");
-		return -1;
-	}
-
-	//print stuff
-
-	printf("x =");
-	for (int i = 0; i < coordinates_width; i++)
-	{
-		printf(" %f", full_profile[i*3]);
-	}
-	printf("\n");
-
-	printf("y =");
-	for (int i = 0; i < coordinates_width; i++)
-	{
-		printf(" %f", full_profile[i*3 + 1]);
-	}
-	printf("\n");
-
-	printf("p =");
-	for (int i = 0; i < coordinates_width; i++)
-	{
-		printf(" %f", full_profile[i*3 + 2]);
-	}
-	printf("\n");
-
+	ct::max_slope(im_array, temika_frame.size_x, temika_frame.size_y, position_vector, ct::x, center, horizontal_window, slope_window);
 	return 1;
 }

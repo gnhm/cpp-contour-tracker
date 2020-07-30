@@ -1,5 +1,6 @@
 #include <math.h>
 #include <assert.h>
+#include "running_slope.h"
 
 #define VEC_X 0;
 #define VEC_Y 1;
@@ -52,18 +53,9 @@ namespace ct
 	Vector unit_vectors_px[4] = { {1.,0.}, {0., 1.}, {1., 1.}, {-1., 1.}}; //This is fine, but vim gets annoyed because of c++11 bug
 	int perpendicular[4] = {1,0,3,2}; 
 
-	/* TODO We want this function to return or modify x-coordinates, y-coordinates, and profile.
-	 * In Python, easiest way is to return a 2-d numpy array. In C I'm not so sure.
-	 * Perhaps easiest thing is to have a void function that modifies a 2-d array, and a "length" int.
-	 * Additionally, horizontal_window determines the maximum length of the profile, so (TODO) it should 
-	 * not be buried as an optional parameter, but defined outside of it. */
-	/* TODO Finish this function!!! */
 	int profile(double *image, int rows, int cols, double *full_profile, Vector c, axes axis, int horizontal_window)
 	{
 		int coordinates_width;
-
-		/*This very complicated switch-case structure is just for defining the different axes along which to take the profile.
-		 * 99% of the complexity is truncating the profile at the boundaries of the image. */
 
 		if (c.x < 0 || c.y < 0 || c.x >= rows || c.y >= cols)
 		{
@@ -79,9 +71,13 @@ namespace ct
 					coordinates_width = end - start;
 					for (int i = 0; i < coordinates_width; i++)
 					{
-						full_profile[i*3] = i + start;
-						full_profile[i*3 + 1] = c.y;
-						full_profile[i*3 + 2] = image[i + start + ((int) c.y)*rows];
+                                               // full_profile[i*3] = i + start;
+                                               // full_profile[i*3 + 1] = c.y;
+                                               // full_profile[i*3 + 2] = image[i + start + ((int) c.y)*rows];
+
+						full_profile[i] = i + start;
+						full_profile[i + coordinates_width] = c.y;
+						full_profile[i + 2*coordinates_width] = image[i + start + ((int) c.y)*rows];
 
 					}
 					return coordinates_width;
@@ -94,9 +90,12 @@ namespace ct
 					coordinates_width = end - start;
 					for (int i = 0; i < coordinates_width; i++)
 					{
-						full_profile[i*3] = c.x;
-						full_profile[i*3 + 1] = i + start;
-						full_profile[i*3 + 2] = image[((int) c.x) + (i + start)*rows];
+						//full_profile[i*3] = c.x;
+						//full_profile[i*3 + 1] = i + start;
+						//full_profile[i*3 + 2] = image[((int) c.x) + (i + start)*rows];
+						full_profile[i] = c.x;
+						full_profile[i + coordinates_width] = i + start;
+						full_profile[i + 2*coordinates_width] = image[((int) c.x) + (i + start)*rows];
 
 					}
 					return coordinates_width;
@@ -133,9 +132,12 @@ namespace ct
 					coordinates_width = end_x - start_x;
 					for (int i = 0; i < coordinates_width; i++)
 					{
-						full_profile[i*3] = i + start_x;
-						full_profile[i*3 + 1] = i + start_y;
-						full_profile[i*3 + 2] = image[i + start_x + (i + start_y)*rows];
+						//full_profile[i*3] = i + start_x;
+						//full_profile[i*3 + 1] = i + start_y;
+						//full_profile[i*3 + 2] = image[i + start_x + (i + start_y)*rows];
+						full_profile[i] = i + start_x;
+						full_profile[i + coordinates_width] = i + start_y;
+						full_profile[i + 2*coordinates_width] = image[i + start_x + (i + start_y)*rows];
 					}	
 					return coordinates_width;
 					break;
@@ -171,15 +173,57 @@ namespace ct
 					coordinates_width = end_y - start_y;
 					for (int i = 0; i < coordinates_width; i++)
 					{
-						full_profile[i*3] = start_x - i;
-						full_profile[i*3 + 1] = i + start_y;
-						full_profile[i*3 + 2] = image[start_x - i + (i + start_y)*rows];
+					//	full_profile[i*3] = start_x - i;
+					//	full_profile[i*3 + 1] = i + start_y;
+					//	full_profile[i*3 + 2] = image[start_x - i + (i + start_y)*rows];
+						full_profile[i] = start_x - i;
+						full_profile[i + coordinates_width] = i + start_y;
+						full_profile[i + 2*coordinates_width] = image[start_x - i + (i + start_y)*rows];
 					}	
 					return coordinates_width;
 					break;
 				}
 		}
-
 		return -1;
+	}
+
+	void max_slope(double *image, int rows, int cols, Vector c, axes axis, Vector center, int horizontal_window, int slope_window)
+	{
+		double *full_profile = (double*) malloc(sizeof(double)*(2*horizontal_window + 1)*3);
+		int coordinates_width = profile(image, rows, cols, full_profile, c, axis, horizontal_window);
+		int orientation = unit_vectors[axis].x*(center.x - c.x) + unit_vectors[axis].x*(center.y - c.y) < 0 ? -1 : 1;
+		Vector unit_vector(unit_vectors[axis].x*orientation, unit_vectors[axis].y*orientation);
+
+		int window = 5;
+
+		double *m_l = (double*) malloc( (coordinates_width - window + 1)*sizeof(double));
+		double *b_l = (double*) malloc( (coordinates_width - window + 1)*sizeof(double));
+
+
+		//TODO Flip sign of slope based on orientation
+		switch(axis)
+		{
+			case x:
+				running_slope(m_l, b_l, full_profile, full_profile + 2*coordinates_width, coordinates_width, window);
+				break;
+			case y:
+				running_slope(m_l, b_l, full_profile + coordinates_width, full_profile + 2*coordinates_width, coordinates_width, window);
+				break;
+			//TODO Scale by sqrt(2)
+			case v:
+				running_slope(m_l, b_l, full_profile + coordinates_width, full_profile + 2*coordinates_width, coordinates_width, window);
+				break;
+			//TODO Scale by sqrt(2)
+			case w:
+				running_slope(m_l, b_l, full_profile + coordinates_width, full_profile + 2*coordinates_width, coordinates_width, window);
+				break;
+		}
+
+		//TODO We find all the slopes, and then we sift to find the max arg. This is inefficient. Just return max
+
+		for (int i = 0; i < coordinates_width - window + 1; i++)
+		{
+			printf("%f\n", m_l[i]);
+		}
 	}
 }
