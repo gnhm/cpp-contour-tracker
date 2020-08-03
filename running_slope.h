@@ -1,9 +1,9 @@
 void running_slope(double *m_l, double *b_l, double *x, double *y, int n, int window)
 {
-	double x_m;
-	double y_m;
-	double s_xx;
-	double s_xy;
+	double x_m = 0;
+	double y_m = 0;
+	double s_xx = 0;
+	double s_xy = 0;
 
 	for (int i = 0; i < window; i++)
 	{
@@ -48,12 +48,12 @@ void running_slope(double *m_l, double *b_l, double *x, double *y, int n, int wi
 	}
 }
 
-void get_maximum_slope(double *slope_intercept, double *x, double *y, int n, int window)
+void get_maximum_slope(double *slope_intercept, double *x, double *y, int n, int window, int orientation)
 {
-	double x_m;
-	double y_m;
-	double s_xx;
-	double s_xy;
+	double x_m = 0;
+	double y_m = 0;
+	double s_xx = 0;
+	double s_xy = 0;
 
 	for (int i = 0; i < window; i++)
 	{
@@ -93,7 +93,8 @@ void get_maximum_slope(double *slope_intercept, double *x, double *y, int n, int
 		x_m += e_x;
 		y_m += e_y;
 
-		if (s_xy/s_xx > slope_intercept[0])
+
+		if ( ( (s_xy/s_xx < slope_intercept[0]) && orientation == 1) || ( (s_xy/s_xx > slope_intercept[0]) && orientation == -1) )
 		{
 			slope_intercept[0] = s_xy/s_xx;
 			slope_intercept[1] = y_m - (s_xy/s_xx)*x_m;

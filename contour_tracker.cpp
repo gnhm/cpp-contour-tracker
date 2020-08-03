@@ -17,7 +17,7 @@ using namespace std;
 camera_frame_struct temika_frame;
 
 int horizontal_window = 5;
-int slope_window = 5;
+int slope_window = 4;
 
 int main(int argc, char **argv)
 {
@@ -25,13 +25,25 @@ int main(int argc, char **argv)
 	double *im_array = (double*) malloc(sizeof(double)*temika_frame.size_x*temika_frame.size_y); //Allocate the array
 	image_array(&temika_frame, im_array); //Transform the temika array into an image array
 
-	//Allocate a big enough array to write full profile
-	double *full_profile = (double*) malloc(sizeof(double)*(2*horizontal_window + 1)*3); 
-
 	//Get profile
-	ct::Vector position_vector(196, 294);
-	ct::Vector center(160, 300);
+	ct::Vector center(112, 112);
+	
+	//ct::axes axis = ct::x;
+	//ct::Vector position_vector(150, 115);
+	//ct::axes axis = ct::x;
+	//ct::Vector position_vector(75, 115);
+	
+	//ct::axes axis = ct::y;
+	//ct::Vector position_vector(113, 78);
+	
+//	ct::axes axis = ct::v;
+//	ct::Vector position_vector(86, 86);
 
-	ct::max_slope(im_array, temika_frame.size_x, temika_frame.size_y, position_vector, ct::x, center, horizontal_window, slope_window);
+	ct::axes axis = ct::w;
+	ct::Vector position_vector(136, 85);
+
+	double bar_point_v_slope[3];
+
+	ct::max_slope(bar_point_v_slope, im_array, temika_frame.size_x, temika_frame.size_y, position_vector, axis, center, horizontal_window, slope_window);
 	return 1;
 }

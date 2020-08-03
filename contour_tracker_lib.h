@@ -7,6 +7,8 @@
 #define VEC_V 2;
 #define VEC_W 3;
 
+#define SQRT2 1.41421356237;
+
 namespace ct
 {
 	class Vector
@@ -49,6 +51,7 @@ namespace ct
 
 	/* Vim's error detection thing will flag these Vectors because the way we define them. Nevertheless, it's fine so long
 	 * as you compile with the -std=c++11 fla */
+	axes axes_int[4] = {x, y, v, w};
 	Vector unit_vectors[4] = { {1.,0.}, {0., 1.}, {1./sqrt(2), 1./sqrt(2)}, {-1./sqrt(2), 1./sqrt(2)}}; //This is fine, but vim gets annoyed because of c++11 bug
 	Vector unit_vectors_px[4] = { {1.,0.}, {0., 1.}, {1., 1.}, {-1., 1.}}; //This is fine, but vim gets annoyed because of c++11 bug
 	int perpendicular[4] = {1,0,3,2}; 
@@ -187,43 +190,95 @@ namespace ct
 		return -1;
 	}
 
-	void max_slope(double *image, int rows, int cols, Vector c, axes axis, Vector center, int horizontal_window, int slope_window)
+	void max_slope(double *bar_point_v_slope, double *image, int rows, int cols, Vector c, axes axis, Vector center, int horizontal_window, int slope_window)
 	{
-		double *full_profile = (double*) malloc(sizeof(double)*(2*horizontal_window + 1)*3);
+		//TODO Heap or stack is better?
+		//double *full_profile = (double*) malloc(sizeof(double)*(2*horizontal_window + 1)*3);
+		double full_profile[(2*horizontal_window + 1)*3];
+
 		int coordinates_width = profile(image, rows, cols, full_profile, c, axis, horizontal_window);
 		int orientation = unit_vectors[axis].x*(center.x - c.x) + unit_vectors[axis].x*(center.y - c.y) < 0 ? -1 : 1;
 		Vector unit_vector(unit_vectors[axis].x*orientation, unit_vectors[axis].y*orientation);
 
-		int window = 5;
+		double slope_intercept[2];
 
-		double *m_l = (double*) malloc( (coordinates_width - window + 1)*sizeof(double));
-		double *b_l = (double*) malloc( (coordinates_width - window + 1)*sizeof(double));
+		//TODO Finding the mean. This is slow, since we've already gone through the profile.
+		double p = 0;
+		for (int i = 0; i < coordinates_width; i++)
+		{
+			p += full_profile[2*coordinates_width + i];
+		}
+		
+		p /= (float) coordinates_width;
 
+		double bar_point_v[2];
+		double bar_point;
 
-		//TODO Flip sign of slope based on orientation
 		switch(axis)
 		{
 			case x:
-				running_slope(m_l, b_l, full_profile, full_profile + 2*coordinates_width, coordinates_width, window);
+				get_maximum_slope(slope_intercept, full_profile, full_profile + 2*coordinates_width, coordinates_width, slope_window, orientation);
+				bar_point = (p - slope_intercept[1])/slope_intercept[0];
+				bar_point_v[0] = bar_point;
+				bar_point_v[1] = c.y;
 				break;
 			case y:
-				running_slope(m_l, b_l, full_profile + coordinates_width, full_profile + 2*coordinates_width, coordinates_width, window);
+				get_maximum_slope(slope_intercept, full_profile + coordinates_width, full_profile + 2*coordinates_width, coordinates_width, slope_window, orientation);
+				bar_point = (p - slope_intercept[1])/slope_intercept[0];
+				bar_point_v[0] = c.x;
+				bar_point_v[1] = bar_point;
 				break;
-			//TODO Scale by sqrt(2)
 			case v:
-				running_slope(m_l, b_l, full_profile + coordinates_width, full_profile + 2*coordinates_width, coordinates_width, window);
+				get_maximum_slope(slope_intercept, full_profile, full_profile + 2*coordinates_width, coordinates_width, slope_window, orientation);
+				bar_point = (p - slope_intercept[1])/slope_intercept[0];
+				bar_point_v[0] = bar_point;
+				bar_point_v[1] = (bar_point - c.x) + c.y;
+				slope_intercept[0] /= SQRT2;
 				break;
-			//TODO Scale by sqrt(2)
 			case w:
-				running_slope(m_l, b_l, full_profile + coordinates_width, full_profile + 2*coordinates_width, coordinates_width, window);
+				get_maximum_slope(slope_intercept, full_profile, full_profile + 2*coordinates_width, coordinates_width, slope_window, orientation);
+				bar_point = (p - slope_intercept[1])/slope_intercept[0];
+				bar_point_v[0] = bar_point;
+				bar_point_v[1] = c.y - bar_point + c.x;
+				slope_intercept[0] /= SQRT2;
 				break;
 		}
 
-		//TODO We find all the slopes, and then we sift to find the max arg. This is inefficient. Just return max
+		bar_point_v_slope[0] = bar_point_v[0];
+		bar_point_v_slope[1] = bar_point_v[1];
+		bar_point_v_slope[2] = -slope_intercept[0]*orientation;
 
-		for (int i = 0; i < coordinates_width - window + 1; i++)
+		//TODO If the axes are v or w, then the slope should be divided by sqrt(2)
+	//	printf("Orientation = %d\n", orientation);
+	//	printf("Slope = %f\n", slope_intercept[0]*orientation); //The slope * orientation should be a large negative number
+	//	printf("Bar point = %f\n", bar_point);
+	//	printf("Bar point v = (%f, %f)\n", bar_point_v[0], bar_point_v[1]);
+	}
+
+	void next_point(double *image, double *contour, int contour_i, Vector center, int horizontal_window, int slope_window, int chirality)
+	{
+		Vector c(contour[contour_i], contour[contour_i+1]);
+		Vector r(c.x - center.x, c.y - center.y);
+		Vector t(chirality*r.y, -chirality*r.x);
+
+		double top_fine[2] = {0., 0.};
+		double bottom_fine[2] = {0., 0.};
+
+		double max_slope;
+		double bar_point_v_slope[3];
+
+		//TODO Keep track of max here
+		for (int i = 0; i < 4; i++)
 		{
-			printf("%f\n", m_l[i]);
+			axes ax = axes_int[i];
+			Vector v = unit_vectors[ax];
+			int projection = dot(v,t) > 0 ? 1 : - 1;
+			Vector candidate(projection*unit_vectors_px[ax].x + c.x, projection*unit_vectors_px[ax].y + c.y);
+
+			//TODO Stopped here
+//			max_slope(bar_point_v_slope, im_array, temika_frame.size_x, temika_frame.size_y, position_vector, axis, center, horizontal_window, slope_window);
+
+
 		}
 	}
 }
