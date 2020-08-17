@@ -267,14 +267,11 @@ namespace ct
 		//printf("Bar point v = (%f, %f)\n", bar_point_v[0], bar_point_v[1]);
 	}
 
-	void next_point(double *next_point, double *image, int rows, int cols, double *contour, int contour_i, Vector center, int horizontal_window, int slope_window, int chirality)
+	void next_point(int *next_point_px, double *next_point_fine, double *image, int rows, int cols, int *contour, int contour_i, Vector center, int horizontal_window, int slope_window, int chirality)
 	{
-		Vector c(contour[contour_i*2 - 2], contour[contour_i*2 - 1]);
+		Vector c((double)contour[contour_i*2 - 2], (double)contour[contour_i*2 - 1]);
 		Vector r(c.x - center.x, c.y - center.y);
 		Vector t(chirality*r.y, -chirality*r.x);
-
-		double top_fine[2] = {0., 0.};
-		double bottom_fine[2] = {0., 0.};
 
 		double max_slope_found = 0;
 		double bar_point_v_slope[3];
@@ -285,20 +282,16 @@ namespace ct
 
 		double max_move[2];
 
-		//TODO Keep track of max here
-		//for (int i = 0; i < 2; i++)
 		for (int i = 0; i < 4; i++)
 		{
 			axes ax = axes_int[i];
 			Vector v = unit_vectors[ax];
 			int projection = dot(v,t) > 0 ? 1 : - 1;
 			Vector candidate(projection*unit_vectors_px[ax].x + c.x, projection*unit_vectors_px[ax].y + c.y);
-//			printf("Candidate = (%f, %f)\n", candidate.x, candidate.y);
 			max_slope(bar_point_v_slope, image, rows, cols, candidate, axes_int[perpendicular[i]], center, horizontal_window, slope_window);
 			numerator_x += bar_point_v_slope[0]*std::abs(bar_point_v_slope[2]);
 			numerator_y += bar_point_v_slope[1]*std::abs(bar_point_v_slope[2]);
 			denominator += std::abs(bar_point_v_slope[2]);
-//			printf("Slope = %f\n", bar_point_v_slope[2]);
 			if (i == 0 || bar_point_v_slope[2] > max_slope_found)
 			{
 				max_slope_found = bar_point_v_slope[2];
@@ -307,13 +300,19 @@ namespace ct
 			}
 
 		}
-		//printf("(%f, %f)\n", numerator_x/denominator, numerator_y/denominator);
-		//printf("denominator = %f\n", denominator);
-		next_point[0] = numerator_x/denominator;
-		next_point[1] = numerator_y/denominator;
-//		printf("Moving to (%d, %d)\n",(int)max_move[0], (int)max_move[1]);
-//		printf("\n");
-		//next_point[0] = (int)max_move[0];
-		//next_point[1] = (int)max_move[1];
+		next_point_fine[0] = numerator_x/denominator;
+		next_point_fine[1] = numerator_y/denominator;
+
+		//First method: Round
+		next_point_px[0] = (int) next_point_fine[0];
+		next_point_px[1] = (int) next_point_fine[1];
+
+		//First test: Is it different from previous?
+		if(next_point_px[-2] == next_point_px[0] && next_point_px[-2 + 1] == next_point_px[1])
+		{
+			//If not, use second method: Largest slope
+			next_point_px[0] = (int)max_move[0];
+			next_point_px[1] = (int)max_move[1];
+		}
 	}
 }

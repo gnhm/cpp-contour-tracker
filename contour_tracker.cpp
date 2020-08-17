@@ -63,22 +63,26 @@ int main(int argc, char **argv)
 //	ct::Vector position_vector(n/2, n/2 + R);
 
 
-	int max = 2000;
+	int max = 500;
 	double bar_point_v_slope[3];
-	double *contour = (double*) malloc(2*max*sizeof(double));
-	contour[0] = position_vector.x;
-	contour[1] = position_vector.y;
+	double *contour_fine = (double*) malloc(2*max*sizeof(double));
+	int *contour_px = (int*) malloc(2*max*sizeof(int));
+	contour_px[0] = (int) position_vector.x;
+	contour_px[1] = (int) position_vector.y;
+	contour_fine[0] = (double) contour_px[0];
+	contour_fine[1] = (double) contour_px[1];
+
 	int contour_i = 0;
 	int chirality = 1;
 
-
 	for (int i = 1; i < max; i++)
 	{
-		ct::next_point(contour + 2*i, im_array, n, n, contour, i, center, horizontal_window, slope_window, chirality);
+		ct::next_point(contour_px + 2*i, contour_fine + 2*i, im_array, n, n, contour_px, i, center, horizontal_window, slope_window, chirality);
 	}
+	
 	for (int i = 0; i < max; i++)
 	{
-		printf("%f\t%f\n", contour[2*i], contour[2*i + 1]);
+		printf("%f\t%f\n", contour_fine[2*i], contour_fine[2*i + 1]);
 	}
 		return 1;
 }
