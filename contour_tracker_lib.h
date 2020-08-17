@@ -1,3 +1,4 @@
+#include <cmath>
 #include <math.h>
 #include <assert.h>
 #include "running_slope.h"
@@ -197,8 +198,19 @@ namespace ct
 		double full_profile[(2*horizontal_window + 1)*3];
 
 		int coordinates_width = profile(image, rows, cols, full_profile, c, axis, horizontal_window);
-		int orientation = unit_vectors[axis].x*(center.x - c.x) + unit_vectors[axis].x*(center.y - c.y) < 0 ? -1 : 1;
-		Vector unit_vector(unit_vectors[axis].x*orientation, unit_vectors[axis].y*orientation);
+		int orientation = unit_vectors[axis].x*(center.x - c.x) + unit_vectors[axis].y*(center.y - c.y) < 0 ? -1 : 1;
+//		Vector unit_vector(unit_vectors[axis].x*orientation, unit_vectors[axis].y*orientation);
+
+		/*
+		for (int j = 0; j < 3; j++)
+		{
+			for (int i = 0; i < coordinates_width; i++)
+			{
+				printf("%f\t", full_profile[j*coordinates_width + i]);
+			}
+			printf("\n");
+		}
+		*/
 
 		double slope_intercept[2];
 
@@ -236,10 +248,10 @@ namespace ct
 				slope_intercept[0] /= SQRT2;
 				break;
 			case w:
-				get_maximum_slope(slope_intercept, full_profile, full_profile + 2*coordinates_width, coordinates_width, slope_window, orientation);
+				get_maximum_slope(slope_intercept, full_profile + coordinates_width, full_profile + 2*coordinates_width, coordinates_width, slope_window, orientation);
 				bar_point = (p - slope_intercept[1])/slope_intercept[0];
-				bar_point_v[0] = bar_point;
-				bar_point_v[1] = c.y - bar_point + c.x;
+				bar_point_v[1] = bar_point;
+				bar_point_v[0] = c.y - bar_point + c.x;
 				slope_intercept[0] /= SQRT2;
 				break;
 		}
@@ -249,36 +261,59 @@ namespace ct
 		bar_point_v_slope[2] = -slope_intercept[0]*orientation;
 
 		//TODO If the axes are v or w, then the slope should be divided by sqrt(2)
-	//	printf("Orientation = %d\n", orientation);
-	//	printf("Slope = %f\n", slope_intercept[0]*orientation); //The slope * orientation should be a large negative number
-	//	printf("Bar point = %f\n", bar_point);
-	//	printf("Bar point v = (%f, %f)\n", bar_point_v[0], bar_point_v[1]);
+		//printf("Orientation = %d\n", orientation);
+		//printf("Slope = %f\n", slope_intercept[0]*orientation); //The slope * orientation should be a large negative number
+		//printf("Bar point = %f\n", bar_point);
+		//printf("Bar point v = (%f, %f)\n", bar_point_v[0], bar_point_v[1]);
 	}
 
-	void next_point(double *image, double *contour, int contour_i, Vector center, int horizontal_window, int slope_window, int chirality)
+	void next_point(double *next_point, double *image, int rows, int cols, double *contour, int contour_i, Vector center, int horizontal_window, int slope_window, int chirality)
 	{
-		Vector c(contour[contour_i], contour[contour_i+1]);
+		Vector c(contour[contour_i*2 - 2], contour[contour_i*2 - 1]);
 		Vector r(c.x - center.x, c.y - center.y);
 		Vector t(chirality*r.y, -chirality*r.x);
 
 		double top_fine[2] = {0., 0.};
 		double bottom_fine[2] = {0., 0.};
 
-		double max_slope;
+		double max_slope_found = 0;
 		double bar_point_v_slope[3];
 
+		double numerator_x = 0;
+		double numerator_y = 0;
+		double denominator = 0;
+
+		double max_move[2];
+
 		//TODO Keep track of max here
+		//for (int i = 0; i < 2; i++)
 		for (int i = 0; i < 4; i++)
 		{
 			axes ax = axes_int[i];
 			Vector v = unit_vectors[ax];
 			int projection = dot(v,t) > 0 ? 1 : - 1;
 			Vector candidate(projection*unit_vectors_px[ax].x + c.x, projection*unit_vectors_px[ax].y + c.y);
-
-			//TODO Stopped here
-//			max_slope(bar_point_v_slope, im_array, temika_frame.size_x, temika_frame.size_y, position_vector, axis, center, horizontal_window, slope_window);
-
+//			printf("Candidate = (%f, %f)\n", candidate.x, candidate.y);
+			max_slope(bar_point_v_slope, image, rows, cols, candidate, axes_int[perpendicular[i]], center, horizontal_window, slope_window);
+			numerator_x += bar_point_v_slope[0]*std::abs(bar_point_v_slope[2]);
+			numerator_y += bar_point_v_slope[1]*std::abs(bar_point_v_slope[2]);
+			denominator += std::abs(bar_point_v_slope[2]);
+//			printf("Slope = %f\n", bar_point_v_slope[2]);
+			if (i == 0 || bar_point_v_slope[2] > max_slope_found)
+			{
+				max_slope_found = bar_point_v_slope[2];
+				max_move[0] = bar_point_v_slope[0];
+				max_move[1] = bar_point_v_slope[1];
+			}
 
 		}
+		//printf("(%f, %f)\n", numerator_x/denominator, numerator_y/denominator);
+		//printf("denominator = %f\n", denominator);
+		next_point[0] = numerator_x/denominator;
+		next_point[1] = numerator_y/denominator;
+//		printf("Moving to (%d, %d)\n",(int)max_move[0], (int)max_move[1]);
+//		printf("\n");
+		//next_point[0] = (int)max_move[0];
+		//next_point[1] = (int)max_move[1];
 	}
 }

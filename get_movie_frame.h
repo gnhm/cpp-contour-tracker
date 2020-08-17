@@ -1,4 +1,5 @@
 //#include "average_intensity.h"
+#include <math.h>
 
 #define CAMERA_PIXELMODE_MONO_8         1
 #define CAMERA_PIXELMODE_MONO_16BE      2 // Big endian
@@ -33,7 +34,6 @@ int first_frame(camera_frame_struct *temika_frame)
 	parameter[3] = 0.0;
 	parameter[4] = 0.0;
 	parameter[5] = 0.0;
-
 
 //	if ( !( moviefile = fopen("/Users/guilherme/Documents/Code/temika-simulator/Ron11_3d7_GFP_invasion.12Sep2019_16.01.17.movie", "rb" ) ) )
 	if ( !( moviefile = fopen("/Users/guilherme/Desktop/cell_images/cell_0001.movie", "rb" ) ) )
@@ -167,4 +167,25 @@ void image_array(camera_frame_struct *frame, double *im_array)
 		}
                 im_array[i] = pixel;
         }
+}
+
+void fake_circle(double *im_array, int n, double R, double s)
+{
+	//n = 500
+	//R = 100
+	//s = 20
+	//e = 0.1
+
+	for (int y = 0; y < n; y++)
+	{
+		for (int x = 0; x < n; x++)
+		{
+			double r = sqrt( pow(((double)x - ((double)n)/2.), 2) + pow(((double)y - ((double)n)/2.), 2));
+			//TODO Negative sign?
+			double z = (r - R)*exp(-(pow(r - R, 2))/(2*s));
+			//printf("%f\t", z);
+			*(im_array + y*n + x) = z;
+		}
+		//printf("\n");
+	}
 }
