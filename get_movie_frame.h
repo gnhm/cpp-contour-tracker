@@ -34,9 +34,9 @@ int first_frame(camera_frame_struct *temika_frame)
 	parameter[3] = 0.0;
 	parameter[4] = 0.0;
 	parameter[5] = 0.0;
-
 //	if ( !( moviefile = fopen("/Users/guilherme/Documents/Code/temika-simulator/Ron11_3d7_GFP_invasion.12Sep2019_16.01.17.movie", "rb" ) ) )
-	if ( !( moviefile = fopen("/Users/guilherme/Desktop/cell_images/cell_0001.movie", "rb" ) ) )
+//	if ( !( moviefile = fopen("/Users/guilherme/Desktop/cell_images/cell_0001.movie", "rb" ) ) )
+	if ( !( moviefile = fopen("/Users/guilherme/Documents/Code/cpp_contour/cell_0000.movie", "rb" ) ) )
 	{
 		printf( "Couldn't open movie file.\n" );
 		exit( EXIT_FAILURE );

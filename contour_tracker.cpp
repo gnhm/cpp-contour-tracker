@@ -25,10 +25,25 @@ int slope_window = 5;
 int main(int argc, char **argv)
 {
 
-	//double *im_array = (double*) malloc(sizeof(double)*temika_frame.size_x*temika_frame.size_y); //Allocate the array
-	//first_frame(&temika_frame); //Get the first frame from the movie
-	//image_array(&temika_frame, im_array); //Transform the temika array into an image array
+	//TODO Test with actual cell
+	//TODO Fourier decompose, and check how "bumpy" it is
 
+	first_frame(&temika_frame); //Get the first frame from the movie
+	double *im_array = (double*) malloc(sizeof(double)*temika_frame.size_x*temika_frame.size_y); //Allocate the array
+	image_array(&temika_frame, im_array); //Transform the temika array into an image array
+
+	printf("<IMAGE>\n");
+	for (int j = 0; j < temika_frame.size_y; j++)
+	{
+		for (int i = 0; i < temika_frame.size_x; i++)
+		{
+			printf("%f\t", *(im_array + j*temika_frame.size_x + i));
+		}
+		printf("\n");
+	}
+	printf("</IMAGE>\n");
+
+	/*
         int n = 500;
         double R = 100;
         double s = 10;
@@ -36,37 +51,19 @@ int main(int argc, char **argv)
 	double *im_array = (double*) malloc(sizeof(double)*n*n); //Allocate the array
 	fake_circle(im_array, n, R, s); //Creates a fake circular image, for trouble shooting
 
-	//Get profile
-	//ct::Vector center(112, 112);
-	
-	//ct::axes axis = ct::x;
-	//ct::Vector position_vector(150, 115);
-	//ct::axes axis = ct::x;
-	//ct::Vector position_vector(75, 115);
-	
-	//ct::axes axis = ct::y;
-	//ct::Vector position_vector(113, 78);
-	
-//	ct::axes axis = ct::v;
-//	ct::Vector position_vector(86, 86);
-
-//	ct::axes axis = ct::w;
-//	ct::Vector position_vector(136, 85);
-
-//	ct::max_slope(bar_point_v_slope, im_array, n, n, position_vector, axis, center, horizontal_window, slope_window);
-//	ct::max_slope(bar_point_v_slope, im_array, temika_frame.size_x, temika_frame.size_y, position_vector, axis, center, horizontal_window, slope_window);
-
 	ct::Vector center(n/2, n/2);
-//	ct::axes axis = ct::x;
 	double angle = 0.00;
 	ct::Vector position_vector((0.5*n) + R*cos(angle), (0.5*n) + R*sin(angle));
-//	ct::Vector position_vector(n/2, n/2 + R);
+	*/
 
+	ct::Vector center(temika_frame.size_x/2, temika_frame.size_y/2);
+	ct::Vector position_vector(152, 115);
 
 	int max = 500;
-	double bar_point_v_slope[3];
+	int burn = 10;
 	double *contour_fine = (double*) malloc(2*max*sizeof(double));
 	int *contour_px = (int*) malloc(2*max*sizeof(int));
+
 	contour_px[0] = (int) position_vector.x;
 	contour_px[1] = (int) position_vector.y;
 	contour_fine[0] = (double) contour_px[0];
@@ -74,15 +71,35 @@ int main(int argc, char **argv)
 
 	int contour_i = 0;
 	int chirality = 1;
+	int max_i = -1;
 
 	for (int i = 1; i < max; i++)
 	{
-		ct::next_point(contour_px + 2*i, contour_fine + 2*i, im_array, n, n, contour_px, i, center, horizontal_window, slope_window, chirality);
+		ct::next_point(contour_px + 2*i, contour_fine + 2*i, im_array, temika_frame.size_x, temika_frame.size_y, contour_px, i, center, horizontal_window, slope_window, chirality);
+		if (i > burn)
+		{
+			if (contour_px[2*i] == contour_px[2*burn] && contour_px[2*i + 1] == contour_px[2*burn + 1])
+			{
+				max_i = i;
+				break;
+			}
+		}
 	}
 	
-	for (int i = 0; i < max; i++)
+	printf("<CONTOUR>\n");
+	if (max_i == -1)
 	{
-		printf("%f\t%f\n", contour_fine[2*i], contour_fine[2*i + 1]);
+		printf("Did not close\n");
 	}
+	else
+	{
+		for (int i = burn - 1; i < max_i; i++)
+		{
+			printf("%f\t%f\n", contour_fine[2*i], contour_fine[2*i + 1]);
+			//printf("%d\t%d\n", contour_px[2*i], contour_px[2*i + 1]);
+		}
+	}
+	printf("</CONTOUR>\n");
+
 		return 1;
 }
