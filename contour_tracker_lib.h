@@ -315,4 +315,25 @@ namespace ct
 			next_point_px[1] = (int)max_move[1];
 		}
 	}
+
+	int get_contour(double *contour_fine, int *contour_px, double *im_array, int rows, int cols, int max, int burn, Vector center, int horizontal_window, int slope_window, int chirality)
+	{
+		int contour_i = 0;
+		int max_i = -1;
+
+		for (int i = 1; i < max; i++)
+		{
+			ct::next_point(contour_px + 2*i, contour_fine + 2*i, im_array, rows, cols, contour_px, i, center, horizontal_window, slope_window, chirality);
+			if (i > burn)
+			{
+				if (contour_px[2*i] == contour_px[2*burn] && contour_px[2*i + 1] == contour_px[2*burn + 1])
+				{
+					max_i = i;
+					break;
+				}
+			}
+		}
+
+		return max_i;
+	}
 }

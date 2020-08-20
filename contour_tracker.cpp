@@ -4,6 +4,7 @@
 #include "contour_tracker_lib.h"
 #include <iostream>
 #include "get_movie_frame.h"
+#include "contour_analyzer_lib.h"
 
 #include <assert.h>
 
@@ -32,17 +33,6 @@ int main(int argc, char **argv)
 	double *im_array = (double*) malloc(sizeof(double)*temika_frame.size_x*temika_frame.size_y); //Allocate the array
 	image_array(&temika_frame, im_array); //Transform the temika array into an image array
 
-	printf("<IMAGE>\n");
-	for (int j = 0; j < temika_frame.size_y; j++)
-	{
-		for (int i = 0; i < temika_frame.size_x; i++)
-		{
-			printf("%f\t", *(im_array + j*temika_frame.size_x + i));
-		}
-		printf("\n");
-	}
-	printf("</IMAGE>\n");
-
 	/*
         int n = 500;
         double R = 100;
@@ -61,6 +51,7 @@ int main(int argc, char **argv)
 
 	int max = 500;
 	int burn = 10;
+	int chirality = 1;
 	double *contour_fine = (double*) malloc(2*max*sizeof(double));
 	int *contour_px = (int*) malloc(2*max*sizeof(int));
 
@@ -69,23 +60,32 @@ int main(int argc, char **argv)
 	contour_fine[0] = (double) contour_px[0];
 	contour_fine[1] = (double) contour_px[1];
 
-	int contour_i = 0;
-	int chirality = 1;
-	int max_i = -1;
+	int max_i = ct::get_contour(contour_fine, contour_px, im_array, temika_frame.size_x, temika_frame.size_y, max, burn, center, horizontal_window, slope_window, chirality);
 
-	for (int i = 1; i < max; i++)
+	if (max_i == -1)
 	{
-		ct::next_point(contour_px + 2*i, contour_fine + 2*i, im_array, temika_frame.size_x, temika_frame.size_y, contour_px, i, center, horizontal_window, slope_window, chirality);
-		if (i > burn)
-		{
-			if (contour_px[2*i] == contour_px[2*burn] && contour_px[2*i + 1] == contour_px[2*burn + 1])
-			{
-				max_i = i;
-				break;
-			}
-		}
+		printf("Did not close\n");
+		return 1;
 	}
-	
+	else
+	{
+		contour_fine += (burn - 1)*2;
+		max_i -= burn - 1;
+	}
+	analyze_contour(contour_fine, max_i);
+
+	/*
+	printf("<IMAGE>\n");
+	for (int j = 0; j < temika_frame.size_y; j++)
+	{
+		for (int i = 0; i < temika_frame.size_x; i++)
+		{
+			printf("%f\t", *(im_array + j*temika_frame.size_x + i));
+		}
+		printf("\n");
+	}
+	printf("</IMAGE>\n");
+
 	printf("<CONTOUR>\n");
 	if (max_i == -1)
 	{
@@ -93,13 +93,16 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-		for (int i = burn - 1; i < max_i; i++)
+		contour_fine += (burn - 1)*2;
+		max_i -= burn - 1;
+
+		for (int i = 0; i < max_i; i++)
 		{
 			printf("%f\t%f\n", contour_fine[2*i], contour_fine[2*i + 1]);
-			//printf("%d\t%d\n", contour_px[2*i], contour_px[2*i + 1]);
 		}
 	}
 	printf("</CONTOUR>\n");
+	*/
 
-		return 1;
+	return 1;
 }
