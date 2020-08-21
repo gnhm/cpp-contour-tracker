@@ -318,7 +318,6 @@ namespace ct
 
 	int get_contour(double *contour_fine, int *contour_px, double *im_array, int rows, int cols, int max, int burn, Vector center, int horizontal_window, int slope_window, int chirality)
 	{
-		int contour_i = 0;
 		int max_i = -1;
 
 		for (int i = 1; i < max; i++)
