@@ -22,9 +22,11 @@ for line in data:
 		elif mode == 'contour':
 			contour.append(line.split('\t'))
 
-image = np.asfarray(image)
-contour = np.asfarray(contour)
+if image:
+	image = np.asfarray(image)
+	plt.imshow(image)
+if contour:
+	contour = np.asfarray(contour)
+	plt.plot(*contour.T, c = 'r', marker = '')
 
-plt.imshow(image)
-plt.plot(*contour.T, c = 'r', marker = '')
 plt.show()

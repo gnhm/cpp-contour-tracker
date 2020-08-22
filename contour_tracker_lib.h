@@ -316,24 +316,79 @@ namespace ct
 		}
 	}
 
-	int get_contour(double *contour_fine, int *contour_px, double *im_array, int rows, int cols, int max, int burn, Vector center, int horizontal_window, int slope_window, int chirality)
+	struct ContourStruct
 	{
-		int contour_i = 0;
-		int max_i = -1;
+		double *contour_fine;
+		int *contour_px;
+		double *im_array;
+		int rows;
+		int cols;
+		int max;
+		int burn;
+		Vector *center;
+		Vector *position_vector;
+		int horizontal_window;
+		int slope_window;
+		int chirality;
+		int max_i;
+		int done;
+	};
 
-		for (int i = 1; i < max; i++)
+	void *get_contour(struct ContourStruct ct_st)
+	{
+		ct_st.max_i = -1;
+
+		for (int i = 1; i < ct_st.max; i++)
 		{
-			ct::next_point(contour_px + 2*i, contour_fine + 2*i, im_array, rows, cols, contour_px, i, center, horizontal_window, slope_window, chirality);
-			if (i > burn)
+			ct::next_point(ct_st.contour_px + 2*i, ct_st.contour_fine + 2*i, ct_st.im_array, ct_st.rows, ct_st.cols, ct_st.contour_px, i, *ct_st.center, ct_st.horizontal_window, ct_st.slope_window, ct_st.chirality);
+			if (i > ct_st.burn)
 			{
-				if (contour_px[2*i] == contour_px[2*burn] && contour_px[2*i + 1] == contour_px[2*burn + 1])
+				if (ct_st.contour_px[2*i] == ct_st.contour_px[2*ct_st.burn] && ct_st.contour_px[2*i + 1] == ct_st.contour_px[2*ct_st.burn + 1])
 				{
-					max_i = i;
+					ct_st.max_i = i;
 					break;
 				}
 			}
 		}
 
-		return max_i;
+		if (ct_st.max_i != -1)
+		{
+			ct_st.contour_fine += (ct_st.burn - 1)*2;
+			ct_st.contour_px += (ct_st.burn - 1)*2;
+			ct_st.max_i -= ct_st.burn - 1;
+		}
+
+	return NULL;
+	}
+
+	int save_contour(char *contour_filename, struct ct::ContourStruct ct_st)
+	{
+		FILE *fptr = fopen(contour_filename,"w");
+		if (fptr == NULL)
+		{
+			return -1;
+		}
+		else
+		{
+			fprintf(fptr, "Center = (%f, %f)\n", ct_st.center->x, ct_st.center->y);
+			fprintf(fptr, "Position vector = (%f, %f)\n", ct_st.position_vector->x, ct_st.position_vector->y);
+			fprintf(fptr, "max_i = %d\n", ct_st.max_i);
+
+			fprintf(fptr, "<contour_fine>");
+			for (int i = 0; i < ct_st.max_i == -1 ? ct_st.max : ct_st.max_i; i++)
+			{
+				fprintf(fptr, "%f\t%f\n", ct_st.contour_fine[2*i], ct_st.contour_fine[2*i + 1]);
+			}
+			fprintf(fptr, "</contour_fine>");
+			fprintf(fptr, "<contour_px>");
+			for (int i = 0; i < ct_st.max_i == -1 ? ct_st.max : ct_st.max_i; i++)
+			{
+				fprintf(fptr, "%d\t%d\n", ct_st.contour_px[2*i], ct_st.contour_px[2*i + 1]);
+			}
+			fprintf(fptr, "</contour_px>");
+			fclose(fptr);
+			return 0;
+		}
 	}
 }
+

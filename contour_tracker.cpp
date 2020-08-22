@@ -25,11 +25,8 @@ int slope_window = 5;
 
 int main(int argc, char **argv)
 {
-
-	//TODO Test with actual cell
-	//TODO Fourier decompose, and check how "bumpy" it is
-
-	first_frame(&temika_frame); //Get the first frame from the movie
+	first_frame("cell_0000.movie", &temika_frame); //Get the first frame from the movie
+	//first_frame("cell_0002.movie", &temika_frame); //Get the first frame from the movie
 	double *im_array = (double*) malloc(sizeof(double)*temika_frame.size_x*temika_frame.size_y); //Allocate the array
 	image_array(&temika_frame, im_array); //Transform the temika array into an image array
 
@@ -46,33 +43,38 @@ int main(int argc, char **argv)
 	ct::Vector position_vector((0.5*n) + R*cos(angle), (0.5*n) + R*sin(angle));
 	*/
 
-	ct::Vector center(temika_frame.size_x/2, temika_frame.size_y/2);
-	ct::Vector position_vector(152, 115);
+	struct ct::ContourStruct ct_st;
+	ct::Vector center(temika_frame.size_x/2, temika_frame.size_y/2); //cell_0000.movie
+	ct::Vector position_vector(152, 115); //cell_0000.movie
+	ct_st.center = &center;
+	ct_st.position_vector = &position_vector;
+	ct_st.im_array = im_array;
+	ct_st.rows = temika_frame.size_x;
+	ct_st.cols = temika_frame.size_y;
+	ct_st.horizontal_window = horizontal_window;
+	ct_st.slope_window = slope_window;
+	ct_st.max = 1000;
+	ct_st.burn = 10;
+	ct_st.chirality = 1;
+	ct_st.contour_fine = (double*) malloc(2*ct_st.max*sizeof(double));
+	ct_st.contour_px = (int*) malloc(2*ct_st.max*sizeof(int));
+	ct_st.contour_px[0] = (int) ct_st.position_vector->x;
+	ct_st.contour_px[1] = (int) ct_st.position_vector->y;
+	ct_st.contour_fine[0] = (double) ct_st.contour_px[0];
+	ct_st.contour_fine[1] = (double) ct_st.contour_px[1];
 
-	int max = 500;
-	int burn = 10;
-	int chirality = 1;
-	double *contour_fine = (double*) malloc(2*max*sizeof(double));
-	int *contour_px = (int*) malloc(2*max*sizeof(int));
+	//int max_i = ct::get_contour(contour_fine, contour_px, im_array, temika_frame.size_x, temika_frame.size_y, max, burn, center, horizontal_window, slope_window, chirality);
+	ct::get_contour(ct_st);
 
-	contour_px[0] = (int) position_vector.x;
-	contour_px[1] = (int) position_vector.y;
-	contour_fine[0] = (double) contour_px[0];
-	contour_fine[1] = (double) contour_px[1];
-
-	int max_i = ct::get_contour(contour_fine, contour_px, im_array, temika_frame.size_x, temika_frame.size_y, max, burn, center, horizontal_window, slope_window, chirality);
-
-	if (max_i == -1)
-	{
-		printf("Did not close\n");
-		return 1;
-	}
-	else
-	{
-		contour_fine += (burn - 1)*2;
-		max_i -= burn - 1;
-	}
-	analyze_contour(contour_fine, max_i);
+//	if (ct_st.max_i == -1)
+//	{
+//	}
+//	else
+//	{
+//		ct_st.contour_fine += (ct_st.burn - 1)*2;
+//		ct_st.max_i -= ct_st.burn - 1;
+//	}
+	//analyze_contour(contour_fine, max_i);
 
 	/*
 	printf("<IMAGE>\n");
@@ -85,11 +87,12 @@ int main(int argc, char **argv)
 		printf("\n");
 	}
 	printf("</IMAGE>\n");
+	*/
 
+	/*
 	printf("<CONTOUR>\n");
 	if (max_i == -1)
 	{
-		printf("Did not close\n");
 	}
 	else
 	{
