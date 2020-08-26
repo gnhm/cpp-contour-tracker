@@ -10,6 +10,8 @@
 
 #define SQRT2 1.41421356237;
 
+#define INITIAL_POINTS 10
+
 namespace ct
 {
 	class Vector
@@ -307,13 +309,27 @@ namespace ct
 		next_point_px[0] = (int) next_point_fine[0];
 		next_point_px[1] = (int) next_point_fine[1];
 
-		//First test: Is it different from previous?
+		//First test: Is it different from previous ten points?
+		//for (int i = 1; i++; i < min(contour_i, INITIAL_POINTS + 1))
+		int iter_max = INITIAL_POINTS + 1 < contour_i ? INITIAL_POINTS : contour_i;
+		for (int i = 1; i < iter_max; i++)
+
+		{
+			if(next_point_px[-2*i] == next_point_px[0] && next_point_px[-2*i + 1] == next_point_px[1])
+			{
+				//If not, use second method: Largest slope
+				next_point_px[0] = (int)max_move[0];
+				next_point_px[1] = (int)max_move[1];
+			}
+		}
+		/*
 		if(next_point_px[-2] == next_point_px[0] && next_point_px[-2 + 1] == next_point_px[1])
 		{
 			//If not, use second method: Largest slope
 			next_point_px[0] = (int)max_move[0];
 			next_point_px[1] = (int)max_move[1];
 		}
+		*/
 	}
 
 	struct ContourStruct
@@ -381,19 +397,19 @@ namespace ct
 			fprintf(fptr, "Position vector = (%f, %f)\n", ct_st.position_vector->x, ct_st.position_vector->y);
 			fprintf(fptr, "max_i = %d\n", ct_st.max_i);
 
-			fprintf(fptr, "<contour_fine>");
+			fprintf(fptr, "<contour_fine>\n");
 			int n_max = ct_st.max_i == -1 ? ct_st.max : ct_st.max_i;
 			for (int i = 0; i < n_max; i++)
 			{
 				fprintf(fptr, "%f\t%f\n", ct_st.contour_fine[2*i], ct_st.contour_fine[2*i + 1]);
 			}
-			fprintf(fptr, "</contour_fine>");
-			fprintf(fptr, "<contour_px>");
+			fprintf(fptr, "</contour_fine>\n");
+			fprintf(fptr, "<contour_px>\n");
 			for (int i = 0; i < n_max; i++)
 			{
 				fprintf(fptr, "%d\t%d\n", ct_st.contour_px[2*i], ct_st.contour_px[2*i + 1]);
 			}
-			fprintf(fptr, "</contour_px>");
+			fprintf(fptr, "</contour_px>\n");
 			fclose(fptr);
 			return 0;
 		}
