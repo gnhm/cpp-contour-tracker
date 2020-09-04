@@ -11,6 +11,7 @@
 #define SQRT2 1.41421356237;
 
 #define INITIAL_POINTS 10
+#define CHECK_POINTS 30
 
 namespace ct
 {
@@ -348,6 +349,7 @@ namespace ct
 		int chirality;
 		int max_i;
 		int done;
+		int start;
 	};
 
 	void *get_contour(struct ContourStruct* ct_st)
@@ -357,25 +359,27 @@ namespace ct
 		for (int i = 1; i < ct_st->max; i++)
 		{
 			ct::next_point(ct_st->contour_px + 2*i, ct_st->contour_fine + 2*i, ct_st->im_array, ct_st->rows, ct_st->cols, ct_st->contour_px, i, *(ct_st->center), ct_st->horizontal_window, ct_st->slope_window, ct_st->chirality);
-			if (i > ct_st->burn)
+
+			//after a certain point
+			//check whether new point matches any point in set [burn, burn+checkpoints]
+
+			if (i > ct_st->burn + CHECK_POINTS) //if we have collected more than burn points...
 			{
-				if (ct_st->contour_px[2*i] == ct_st->contour_px[2*ct_st->burn] && ct_st->contour_px[2*i + 1] == ct_st->contour_px[2*ct_st->burn + 1])
+				//check whether we have closed the loop. 
+				for (int j = 0; j < CHECK_POINTS; j++)
 				{
-					ct_st->max_i = i;
-					break;
+					if (ct_st->contour_px[2*i] == ct_st->contour_px[2*(ct_st->burn + j)] && ct_st->contour_px[2*i + 1] == ct_st->contour_px[2*(ct_st->burn + j) + 1])
+					//We have looped around in px, but the fine points might disagree. Next frame, however, will have both agree
+					{
+						ct_st->max_i = i;
+						ct_st->start = ct_st->burn + j;
+						ct_st->done = 1;
+						return NULL;
+						//break;
+					}
 				}
 			}
 		}
-
-		//TODO This seems to have been the problem. Removing it leaves the burnt-in part. Need to make sure analysis/save/load programs can deal with this
-		/*
-		if (ct_st->max_i != -1)
-		{
-			ct_st->contour_fine += (ct_st->burn - 1)*2; //TODO Here is the problem
-			ct_st->contour_px += (ct_st->burn - 1)*2;
-			ct_st->max_i -= ct_st->burn - 1;
-		}
-		*/
 
 		ct_st->done = 1;
 
@@ -399,6 +403,11 @@ namespace ct
 			fprintf(fptr, "Center = (%f, %f)\n", ct_st.center->x, ct_st.center->y);
 			fprintf(fptr, "Position vector = (%f, %f)\n", ct_st.position_vector->x, ct_st.position_vector->y);
 			fprintf(fptr, "max_i = %d\n", ct_st.max_i);
+			fprintf(fptr, "start = %d\n", ct_st.start);
+			fprintf(fptr, "burn = %d\n", ct_st.burn);
+			fprintf(fptr, "horizontal_window = %d\n", ct_st.horizontal_window);
+			fprintf(fptr, "slope_window = %d\n", ct_st.slope_window);
+			fprintf(fptr, "chirality = %d\n", ct_st.chirality);
 
 			fprintf(fptr, "<contour_fine>\n");
 			int n_max = ct_st.max_i == -1 ? ct_st.max : ct_st.max_i;
