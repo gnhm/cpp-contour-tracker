@@ -11,12 +11,19 @@
 //camera_feedback( struct camera_frame_struct *frame, double *parameter )
 //
 //need function that updates the movie struct
+//
+/*
+int get_frame(FILE *moviefile, int i, struct camera_frame_struct *frame, int offset)
+{
+	fseek( moviefile, offset, SEEK_SET );
+}
+*/
 
-int first_frame(const char *filename, camera_frame_struct *temika_frame)
+int first_frame(const char *filename, struct camera_frame_struct *temika_frame, long offset)
 {
 	int index;
 	FILE *moviefile;
-        long offset;
+//        long offset;
         bool found;
         uint32_t magic;
         struct camera_save_struct camera_frame;
@@ -26,16 +33,7 @@ int first_frame(const char *filename, camera_frame_struct *temika_frame)
         uint32_t size_x, size_y;
 	uint8_t *imagebuf;
 	int frame = 0;
-	double parameter[6];
 
-	parameter[0] = 0.0;
-	parameter[1] = 0.0;
-	parameter[2] = 0.0;
-	parameter[3] = 0.0;
-	parameter[4] = 0.0;
-	parameter[5] = 0.0;
-//	if ( !( moviefile = fopen("/Users/guilherme/Documents/Code/temika-simulator/Ron11_3d7_GFP_invasion.12Sep2019_16.01.17.movie", "rb" ) ) )
-//	if ( !( moviefile = fopen("/Users/guilherme/Desktop/cell_images/cell_0001.movie", "rb" ) ) )
 	if ( !( moviefile = fopen(filename, "rb" ) ) )
 	{
 		printf( "Couldn't open movie file.\n" );
@@ -43,8 +41,10 @@ int first_frame(const char *filename, camera_frame_struct *temika_frame)
 	}
 
 	// Find the beginning of binary data, it won't work if "TemI" is written in the header.
-	offset = 0;
+	//offset = 0;
+//	offset = 100536;
 	found = false;
+
 	while ( fread( &magic, sizeof( uint32_t ), 1, moviefile ) == 1 )
 	{
 		if ( magic == CAMERA_MOVIE_MAGIC ) 
@@ -79,6 +79,7 @@ int first_frame(const char *filename, camera_frame_struct *temika_frame)
 				printf( "Unsuported version %u\n", camera_frame.version );
 				exit( EXIT_FAILURE );
 			}
+
 			// Go to the beginning of the frame for easier reading
 			fseek( moviefile, -sizeof( struct camera_save_struct ), SEEK_CUR );
 
@@ -131,17 +132,19 @@ int first_frame(const char *filename, camera_frame_struct *temika_frame)
 				printf( "Corrupted data at offset %lu\n", offset );
 				exit( EXIT_FAILURE );
 			}
+			//camera_frame.length_data + IIDC_MOVIE_HEADER_LENGTH + offset
+			//n*(camera_frame.length_data + IIDC_MOVIE_HEADER_LENGTH) + offset
 
 			temika_frame->image = imagebuf;
 
 			free(imagebuf);
-			return 0;
+			return offset;
 		}
 	}
-	return 0;
+	return -1;
 }
 
-void image_array(camera_frame_struct *frame, double *im_array)
+void image_array(struct camera_frame_struct *frame, double *im_array)
 {
 	unsigned int pixel;
         for (int i = 0; i < frame->size_x*frame->size_y; i++ )

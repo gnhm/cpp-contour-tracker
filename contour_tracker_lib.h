@@ -367,12 +367,15 @@ namespace ct
 			}
 		}
 
+		//TODO This seems to have been the problem. Removing it leaves the burnt-in part. Need to make sure analysis/save/load programs can deal with this
+		/*
 		if (ct_st->max_i != -1)
 		{
-			ct_st->contour_fine += (ct_st->burn - 1)*2;
+			ct_st->contour_fine += (ct_st->burn - 1)*2; //TODO Here is the problem
 			ct_st->contour_px += (ct_st->burn - 1)*2;
 			ct_st->max_i -= ct_st->burn - 1;
 		}
+		*/
 
 		ct_st->done = 1;
 
@@ -386,7 +389,7 @@ namespace ct
 
 	int save_contour(char *contour_filename, struct ct::ContourStruct ct_st)
 	{
-		FILE *fptr = fopen(contour_filename,"w");
+		FILE *fptr = fopen(contour_filename,"a");
 		if (fptr == NULL)
 		{
 			return -1;

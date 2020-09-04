@@ -89,6 +89,34 @@ int load_contour(char *contour_filename, struct Contour* cs)
 	return 0;
 }
 
+void contour_center(struct Contour* cs, double *center)
+//void analyze_contour(double *c, int n)
+{
+        double L = 0; //Circumference
+        double x_c = 0;
+        double y_c = 0;
+        double ds_new;
+        double ds_old;
+        for (int i = 0; i < cs->max_i - 1; i++)
+        {
+                ds_new = sqrt(pow((cs->contour[2*(i+1)] - cs->contour[2*i]), 2) + pow((cs->contour[2*(i+1) + 1] - cs->contour[2*i + 1]), 2));
+
+                L += ds_new;
+                if (i == 0)
+                {
+                        ds_old = sqrt(pow((cs->contour[2*(cs->max_i - 1)] - cs->contour[0]), 2) + pow((cs->contour[2*(cs->max_i - 1) + 1] - cs->contour[1]), 2));
+                }
+
+                x_c += cs->contour[2*i]*(ds_new + ds_old);
+                y_c += cs->contour[2*i + 1]*(ds_new + ds_old);
+                ds_old = ds_new;
+        }
+        x_c /= 2*L;
+        y_c /= 2*L;
+	center[0] = x_c;
+	center[1] = y_c;
+}
+
 //TODO The first and last points are the same... The program is written assuming they are not. Go through and fix
 //The fourier transform needs to be fixed due to angle displacement
 void analyze_contour(struct Contour* cs)
