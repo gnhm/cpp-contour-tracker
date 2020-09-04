@@ -356,9 +356,11 @@ namespace ct
 	{
 		ct_st->max_i = -1;
 
-		for (int i = 1; i < ct_st->max; i++)
+		//i counts the number of points in a contour. Since the first point must be already given, we start at i = 1
+		for (int i = 1; i < ct_st->max - 2; i++)
 		{
 			ct::next_point(ct_st->contour_px + 2*i, ct_st->contour_fine + 2*i, ct_st->im_array, ct_st->rows, ct_st->cols, ct_st->contour_px, i, *(ct_st->center), ct_st->horizontal_window, ct_st->slope_window, ct_st->chirality);
+			//at this point we now have i+1 points in our contour, since we have added to it. These is point p + 2*i
 
 			//after a certain point
 			//check whether new point matches any point in set [burn, burn+checkpoints]
@@ -371,8 +373,12 @@ namespace ct
 					if (ct_st->contour_px[2*i] == ct_st->contour_px[2*(ct_st->burn + j)] && ct_st->contour_px[2*i + 1] == ct_st->contour_px[2*(ct_st->burn + j) + 1])
 					//We have looped around in px, but the fine points might disagree. Next frame, however, will have both agree
 					{
-						ct_st->max_i = i;
-						ct_st->start = ct_st->burn + j;
+						ct::next_point(ct_st->contour_px + 2*(i+1), ct_st->contour_fine + 2*(i+1), ct_st->im_array, ct_st->rows, ct_st->cols, ct_st->contour_px, i+1, *(ct_st->center), ct_st->horizontal_window, ct_st->slope_window, ct_st->chirality);
+						ct::next_point(ct_st->contour_px + 2*(i+2), ct_st->contour_fine + 2*(i+2), ct_st->im_array, ct_st->rows, ct_st->cols, ct_st->contour_px, i+2, *(ct_st->center), ct_st->horizontal_window, ct_st->slope_window, ct_st->chirality);
+						//ct_st->max_i = i+1;
+						ct_st->max_i = i+2;
+						//ct_st->start = ct_st->burn + j;
+						ct_st->start = ct_st->burn + j + 1;
 						ct_st->done = 1;
 						return NULL;
 						//break;
@@ -382,7 +388,6 @@ namespace ct
 		}
 
 		ct_st->done = 1;
-
 		return NULL;
 	}
 

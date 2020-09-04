@@ -53,6 +53,12 @@ int track_contour(char *moviefile)
 
 	int bad_frames = 0;
 
+	int characters = 0;
+
+	//TODO There is a problem with not closing the file
+	//first_frame reopens the file and never closes it on each call!
+	//STUPID!
+
 	while((offset = first_frame(moviefile, &frame, offset)) != -1)
 	{
 		if (i == 0)
@@ -122,47 +128,49 @@ int track_contour(char *moviefile)
 //				printf("max_i = %d\n", ct_st.max_i);
 		}
 		save_contour(contour_filename_new, ct_st);
-		if(i % 100 == 0)
-			printf("i = %d\n", i);
-		//}
+
+		if (i == 0)
+		{
+			printf("i = %d", i);
+		//	fflush(stdout);
+		//	characters = (int) ((i == 0) ? 1 : (log10(i) + 1));
+		}
+		else if (i % 10 == 0)
+		{
+			for (int cc = 0; cc < characters; cc++)
+			{
+				printf("\b");
+			}
+
+			printf("%d", i);
+		}
+		fflush(stdout);
+		characters = (int) ((i == 0) ? 1 : (log10(i) + 1));
+
 		i++;
+	}
+
+	for (int cc = 0; cc < characters + 4; cc++)
+	{
+		printf("\b");
 	}
 	printf("Total frames = %d\n", i);
 	printf("Frames dropped = %d\n", bad_frames);
+	printf("\n");
+	free(ct_st.contour_fine);
+	free(ct_st.contour_px);
+	free(ct_st.im_array);
 
 	return 0;
 }
 
-int main(int arc, char **argv)
+int main(int argc, char **argv)
 {
-	/*
-	struct camera_frame_struct frame;
-	long offset = 0;
-	int i = 0;
-	double *im_array;
-	while((offset = first_frame(argv[1], &frame, offset)) != -1)
+	for (int i = 1; i < argc; i++)
 	{
-		if (i == 0)
-		{
-			im_array = (double*) malloc(sizeof(double)*frame.size_x*frame.size_y);
-			//open contour
-			//get the center and edge
-		}
-
-		image_array(&frame, im_array);
-		//contour track with center and edge
-		//write contour
-		//update center and edge
-		
-		if(i % 100 == 0)
-		{
-			printf("i = %d\n", i);
-		}
-		i++;
+		printf("Tracking %s\n", argv[i]);
+		track_contour(argv[i]);
 	}
-	*/
-
-	track_contour(argv[1]);
 
 	return 0;
 }
