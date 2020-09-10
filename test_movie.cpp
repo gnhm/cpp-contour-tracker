@@ -6,7 +6,7 @@
 #include"contour_analyzer_lib.h"
 #include"contour_tracker_lib.h"
 
-#define SAMPLE 1
+#define SAMPLE 10
 
 int track_contour(char *moviefile)
 {
@@ -37,6 +37,8 @@ int track_contour(char *moviefile)
 
 	int horizontal_window = 20;
 	int slope_window = 5;
+	ct_st.horizontal_window = horizontal_window;
+	ct_st.slope_window = slope_window;
 
 	int old_max_i;
 	double old_contour[2*SAMPLE];
@@ -67,7 +69,11 @@ int track_contour(char *moviefile)
 		if (i == 0)
 		{
 			//allocate the image array based on first frame
-			im_array = (double*) malloc(sizeof(double)*frame.size_x*frame.size_y);
+			ct_st.im_array = (double*) malloc(sizeof(double)*frame.size_x*frame.size_y);
+
+//			ct_st.im_array = im_array;
+			ct_st.rows = frame.size_x;
+			ct_st.cols = frame.size_y;
 
 			//load the first contour
 			load_contour(contour_filename, &cs);
@@ -81,13 +87,7 @@ int track_contour(char *moviefile)
 			ct_st.center->y = new_center[1];
 		}
 
-		image_array(&frame, im_array);
-
-		ct_st.im_array = im_array;
-		ct_st.rows = frame.size_x;
-		ct_st.cols = frame.size_y;
-		ct_st.horizontal_window = horizontal_window;
-		ct_st.slope_window = slope_window;
+		image_array(&frame, ct_st.im_array);
 
 		//No way around it. Need to save old contour points for sampling elsewhere.
 		for (int j = 0; j < SAMPLE; j++)
@@ -98,6 +98,8 @@ int track_contour(char *moviefile)
 			ct_st.contour_px[1] = (int) ct_st.position_vector->y;
 			ct_st.contour_fine[0] = (double) ct_st.contour_px[0];
 			ct_st.contour_fine[1] = (double) ct_st.contour_px[1];
+			ct_st.done = -1;
+			ct_st.start = -1;
 			ct::get_contour(&ct_st);
 			if (ct_st.max_i != -1)
 			{
@@ -105,32 +107,31 @@ int track_contour(char *moviefile)
 			}
 		}
 
-		ct_st.position_vector->x = old_contour[0]; 
-		ct_st.position_vector->y = old_contour[1]; 
-		ct_st.contour_px[0] = (int) ct_st.position_vector->x;
-		ct_st.contour_px[1] = (int) ct_st.position_vector->y;
-		ct_st.contour_fine[0] = (double) ct_st.contour_px[0];
-		ct_st.contour_fine[1] = (double) ct_st.contour_px[1];
-		ct_st.done = -1;
-		ct_st.start = -1;
-		ct::get_contour(&ct_st);
+//		ct_st.position_vector->x = old_contour[0]; 
+//		ct_st.position_vector->y = old_contour[1]; 
+//		ct_st.contour_px[0] = (int) ct_st.position_vector->x;
+//		ct_st.contour_px[1] = (int) ct_st.position_vector->y;
+//		ct_st.contour_fine[0] = (double) ct_st.contour_px[0];
+//		ct_st.contour_fine[1] = (double) ct_st.contour_px[1];
+//		ct_st.done = -1;
+//		ct_st.start = -1;
+//		ct::get_contour(&ct_st);
 
-		if (ct_st.max_i == -1)
+		if (ct_st.max_i == -1) //Bad frame
 		{
-//				printf("Bad frame\n");
 				bad_frames++;
 		}
-		else
+		else //Good frame
 		{
-			for (int j = 0; j < SAMPLE; j++)
+			for (int j = 0; j < SAMPLE; j++) //Copy current contour into old_contour
 			{
 				old_contour[2*j] = ct_st.contour_fine[2*j*ct_st.max_i/SAMPLE];
 				old_contour[2*j + 1] = ct_st.contour_fine[2*j*ct_st.max_i/SAMPLE + 1];
 			}
-//				printf("max_i = %d\n", ct_st.max_i);
 		}
-		save_contour(contour_filename_new, ct_st);
+		save_contour(contour_filename_new, ct_st); //Save everything
 
+		//This is just to print stuff out
 		if (i == 0)
 		{
 			printf("i = %d", i);
@@ -157,6 +158,7 @@ int track_contour(char *moviefile)
 	printf("Total frames = %d\n", i);
 	printf("Frames dropped = %d\n", bad_frames);
 	printf("\n");
+
 	free(ct_st.contour_fine);
 	free(ct_st.contour_px);
 	free(ct_st.im_array);
