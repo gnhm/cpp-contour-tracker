@@ -371,13 +371,8 @@ void analyze_contour(struct Contour* cs)
 			theta[i] += 2*M_PI;
 		}
 
-		//TODO We want the "jump" to occur between n-1 and 0, and nowhere else
-//		theta[i] += 2*M_PI - theta[0];
-//		printf("%f\t%f\n", theta[i], r[i]);
 	}
 
-
-	//TODO This doesn't work, probably because of angle displacement gets very big.
 
 	int max_mode = 20;
 	int min_mode = 0;
@@ -387,14 +382,6 @@ void analyze_contour(struct Contour* cs)
 	double r0 = 0;
 	double w;
 	double total_angle = 0;
-
-	/*
-	for (int i = 0; i < n; i++)
-	{
-		r[i] = 20;
-		theta[i] = 2*M_PI*((double)i)/((double)(n-1));
-	}
-	*/
 
 	for (int i = 0; i < cs->max_i - 1; i++)
 	{
@@ -421,7 +408,8 @@ void analyze_contour(struct Contour* cs)
 	for (int i = min_mode; i <= max_mode; i++)
 	{
 		cc[i] = sqrt(pow(a[i], 2) + pow(b[i], 2))/(2*M_PI*r0);
-		printf("%d\t%f\n", i, cc[i]);
+		//printf("%d\t%f\n", i, cc[i]);
+		printf("%f\t", cc[i]);
 	}
 	printf("\n");
 //	printf("Total angle = %f\n", total_angle);

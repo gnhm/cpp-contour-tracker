@@ -26,18 +26,14 @@ int main(int argc, char **argv)
 			{
 				if (ct_st.max_i != 1)
 				{
-					printf("Center = (%f, %f)\n", ct_st.center->x, ct_st.center->y);
-					printf("Position vector = (%f, %f)\n", ct_st.position_vector->x, ct_st.position_vector->y);
-					printf("max_i = %d\n", ct_st.max_i);
-					printf("burn = %d\n", ct_st.burn);
-					for (int j = 0; j < 2; j++)
-					{
-						printf("%f\t%f\n", ct_st.contour_fine[2*j], ct_st.contour_fine[2*j + 1]);
-					}
+					struct Contour cs;
+					cs.max_i = ct_st.max_i - ct_st.start;
+					cs.contour = ct_st.contour_fine + 2*ct_st.start;
+					analyze_contour(&cs);
 				}
 				else
 				{
-					printf("bad frame\n");
+//					printf("bad frame\n");
 				}
 				printf("\n");
 			}
