@@ -55,16 +55,21 @@ int track_contour(char *moviefile)
 
 	int characters = 0;
 
-	//TODO There is a problem with not closing the file
-	//first_frame reopens the file and never closes it on each call!
-	//STUPID!
+	FILE *file;
+	if ( !( file = fopen(moviefile, "rb" ) ) )
+	{
+		printf( "Couldn't open movie file.\n" );
+		exit( EXIT_FAILURE );
+	}
 
-	while((offset = first_frame(moviefile, &frame, offset)) != -1)
+	while((offset = get_frame(file, &frame, offset)) != -1)
 	{
 		if (i == 0)
 		{
+			//allocate the image array based on first frame
 			im_array = (double*) malloc(sizeof(double)*frame.size_x*frame.size_y);
 
+			//load the first contour
 			load_contour(contour_filename, &cs);
 			for (int j = 0; j < SAMPLE; j++)
 			{
@@ -75,9 +80,6 @@ int track_contour(char *moviefile)
 			ct_st.center->x = new_center[0];
 			ct_st.center->y = new_center[1];
 		}
-
-		//else
-		//{
 
 		image_array(&frame, im_array);
 
@@ -132,8 +134,6 @@ int track_contour(char *moviefile)
 		if (i == 0)
 		{
 			printf("i = %d", i);
-		//	fflush(stdout);
-		//	characters = (int) ((i == 0) ? 1 : (log10(i) + 1));
 		}
 		else if (i % 10 == 0)
 		{
