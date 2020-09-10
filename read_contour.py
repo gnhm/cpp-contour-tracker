@@ -1,7 +1,7 @@
 import numpy as np
 from malariaMovieReader import *
 
-f = "/Users/guilherme/data/feedback_fixed_3_video/cell_0000_contour_full.txt"
+f = "/Users/guilherme/data/feedback_fixed_3_video/cell_0002_contour_full.txt"
 
 with open(f) as g:
 	x = g.readlines()
@@ -82,7 +82,7 @@ bad = [b[0] for b in bad]
 print len(bad)
 
 #um = [not np.all(contour_px_list[i][-1] == contour_px_list[i][d['start'][i]]) if d['max_i'] != -1 else False for i in range(len(contour_px_list))]
-#umf = [not np.all(contour_fine_list[i][-1] == contour_fine_list[i][d['start'][i]]) if d['max_i'] != -1 else False for i in range(len(contour_fine_list))]
+umf = [not np.all(contour_fine_list[i][-1] == contour_fine_list[i][d['start'][i]]) if d['max_i'] != -1 else False for i in range(len(contour_fine_list))]
 #print "Unmatched start to last (px): ", np.mean(um)
 print "Unmatched start to last (fine): ", np.mean(umf)
 

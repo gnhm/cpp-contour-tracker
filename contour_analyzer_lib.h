@@ -1,5 +1,6 @@
 #include <cmath>
 #include <math.h>
+#include"contour_tracker_lib.h"
 
 #define NM_PER_PX 97.6
 
@@ -87,6 +88,198 @@ int load_contour(char *contour_filename, struct Contour* cs)
 		}
 	}
 	return 0;
+}
+
+long int read_contour(FILE *fptr, ct::ContourStruct *ct_st)
+{
+	/*
+	FILE *fptr = fopen(contour_filename,"r");
+	if (fptr == NULL)
+	{
+		return -1;
+	}
+	*/
+
+	char line[MAX_BUFFER];
+	int i = 0;
+	char c;
+
+	char *p;
+
+	bool contour_fine_mode = false;
+	bool contour_px_mode = false;
+
+	int contour_fine_i = 0;
+	int contour_px_i = 0;
+
+	while ((c = getc(fptr)) != EOF)
+	{
+		if (c == '\n')
+		{
+			line[i] = '\0';
+			i = 0;
+
+			if (contour_fine_mode)
+			{
+
+				if(strstr(line, "</contour_fine>") != NULL)
+				{
+					contour_fine_mode = false;
+					contour_fine_i = 0;
+				}
+				else
+				{
+					double c_x;
+					double c_y;
+
+					char *p = strchr(line, '\t');
+					c_y = atof(p);
+					*p = '\0';
+					c_x = atof(line);
+					ct_st->contour_fine[2*contour_fine_i] = c_x;
+					ct_st->contour_fine[2*contour_fine_i + 1] = c_y;
+					contour_fine_i++;
+				}
+			}
+
+			else if (contour_px_mode)
+			{
+
+				if(strstr(line, "</contour_px>") != NULL)
+				{
+					contour_px_mode = false;
+					contour_px_i = 0;
+					return ftell(fptr);
+				}
+				else
+				{
+					int c_x;
+					int c_y;
+
+					char *p = strchr(line, '\t');
+					c_y = atoi(p);
+					*p = '\0';
+					c_x = atoi(line);
+					ct_st->contour_px[2*contour_px_i] = c_x;
+					ct_st->contour_px[2*contour_px_i + 1] = c_y;
+					contour_px_i++;
+				}
+			}
+			else
+			{
+
+				if(strstr(line, "Center = ") != NULL)
+				{
+					char *pstart = strchr(line, '(');
+					char *pend = strchr(pstart, ',');
+					long int n = (long int) (pend - pstart);
+
+					char buff[n-1];
+					memcpy(buff, pstart + 1, n - 1);
+					buff[n] = '\0';
+
+					ct_st->center->x = atof(buff);
+
+					char *pend2 = strchr(pstart, ')');
+					long int n2 = (long int) (pend2 - pend);
+					char buff2[n2-1];
+					memcpy(buff2, pend + 2, n2 - 2);
+					buff2[n2 - 2] = '\0';
+					ct_st->center->y = atof(buff2);
+				}
+
+				else if(strstr(line, "Position vector = ") != NULL)
+				{
+					char *pstart = strchr(line, '(');
+					char *pend = strchr(pstart, ',');
+					long int n = (long int) (pend - pstart);
+
+					char buff[n-1];
+					memcpy(buff, pstart + 1, n - 1);
+					buff[n] = '\0';
+
+					ct_st->position_vector->x = atof(buff);
+
+					char *pend2 = strchr(pstart, ')');
+					long int n2 = (long int) (pend2 - pend);
+					char buff2[n2-1];
+					memcpy(buff2, pend + 2, n2 - 2);
+					buff2[n2 - 2] = '\0';
+					ct_st->position_vector->y = atof(buff2);
+				}
+
+				else if(strstr(line, "max_i = ") != NULL)
+				{
+					char *pstart = strstr(line, " = ");
+					ct_st->max_i = atoi(pstart + 3);
+				}
+
+				else if(strstr(line, "start = ") != NULL)
+				{
+					char *pstart = strstr(line, " = ");
+					ct_st->start = atoi(pstart + 3);
+				}
+
+				else if(strstr(line, "burn = ") != NULL)
+				{
+					char *pstart = strstr(line, " = ");
+					ct_st->burn = atoi(pstart + 3);
+				}
+
+				else if(strstr(line, "horizontal_window = ") != NULL)
+				{
+					char *pstart = strstr(line, " = ");
+					ct_st->horizontal_window = atoi(pstart + 3);
+				}
+
+				else if(strstr(line, "slope_window = ") != NULL)
+				{
+					char *pstart = strstr(line, " = ");
+					ct_st->slope_window = atoi(pstart + 3);
+				}
+
+				else if(strstr(line, "chirality = ") != NULL)
+				{
+					char *pstart = strstr(line, " = ");
+					ct_st->chirality = atoi(pstart + 3);
+				}
+
+				else if(strstr(line, "<contour_fine>") != NULL)
+				{
+					contour_fine_mode = true;
+					if (ct_st->max_i != -1)
+					{
+						ct_st->contour_fine = (double*) malloc(sizeof(double)*2*ct_st->max_i);
+					}
+					else
+					{
+						return 0;
+					}
+
+				}
+
+				else if(strstr(line, "<contour_px>") != NULL)
+				{
+					contour_px_mode = true;
+					if (ct_st->max_i != -1)
+					{
+						ct_st->contour_px = (int*) malloc(sizeof(int)*2*ct_st->max_i);
+					}
+					else
+					{
+						return 0;
+					}
+
+				}
+			}
+		}
+		else
+		{
+			line[i] = c;
+			i++;
+		}
+	}
+	return -1;
 }
 
 void contour_center(struct Contour* cs, double *center)
