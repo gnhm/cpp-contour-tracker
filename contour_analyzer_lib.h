@@ -312,7 +312,7 @@ void contour_center(struct Contour* cs, double *center)
 
 //TODO The first and last points are the same... The program is written assuming they are not. Go through and fix
 //The fourier transform needs to be fixed due to angle displacement
-void analyze_contour(struct Contour* cs)
+double analyze_contour(struct Contour* cs, double* cc, int min_mode = 0, int max_mode = 20)
 //void analyze_contour(double *c, int n)
 {
 	double L = 0; //Circumference
@@ -374,11 +374,9 @@ void analyze_contour(struct Contour* cs)
 	}
 
 
-	int max_mode = 20;
-	int min_mode = 0;
 	double a[max_mode - min_mode + 1];
 	double b[max_mode - min_mode + 1];
-	double cc[max_mode - min_mode + 1];
+//	double cc[max_mode - min_mode + 1];
 	double r0 = 0;
 	double w;
 	double total_angle = 0;
@@ -399,18 +397,22 @@ void analyze_contour(struct Contour* cs)
 			b[j] += 0.5*(r[i]*sin(j*theta[i]) + r[i+1]*sin(j*theta[i+1]))*w;
 		}
 	}
+
+	for (int i = min_mode; i <= max_mode; i++)
+	{
+		cc[i] = sqrt(pow(a[i], 2) + pow(b[i], 2))/(2*M_PI*r0);
+	}
+	return L;
 	//MODE 0 = Should be normalized to 1
 	//MODE 1 = How "heart" or "kidney" shaped is it?
 	//MODE 2 = How dumbbell shaped is it?
 	//MODE 3 = How tree-foil shaped is it?
 	//Maybe from mode 3 and above, we check that the < 0.15
-	//TODO One of the modes (10? changes everything I run it... WHY??)
-	for (int i = min_mode; i <= max_mode; i++)
-	{
-		cc[i] = sqrt(pow(a[i], 2) + pow(b[i], 2))/(2*M_PI*r0);
-		//printf("%d\t%f\n", i, cc[i]);
-		printf("%f\t", cc[i]);
-	}
-	printf("\n");
+//	for (int i = min_mode; i <= max_mode; i++)
+//	{
+//		cc[i] = sqrt(pow(a[i], 2) + pow(b[i], 2))/(2*M_PI*r0);
+//		printf("%f\t", cc[i]);
+//	}
+//	printf("\n");
 //	printf("Total angle = %f\n", total_angle);
 }

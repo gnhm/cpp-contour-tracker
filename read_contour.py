@@ -1,7 +1,7 @@
 import numpy as np
 from malariaMovieReader import *
 
-f = "/Users/guilherme/data/feedback_fixed_3_video/cell_0002_contour_full.txt"
+f = "/Users/guilherme/data/feedback_fixed_3_video/cell_0000_contour_full.txt"
 
 with open(f) as g:
 	x = g.readlines()
@@ -74,7 +74,7 @@ def plot(i):
 	im = m.get_frame(i+1)
 	plt.imshow(im)
 	plt.plot([position_vectors[i][0]], [position_vectors[i][1]], c = 'r', marker = 'o')
-	plt.plot(*contour_fine_list[i].T, c = 'r', marker = '')
+	plt.plot(*contour_fine_list[i][d['start'][i]:].T, c = 'r', marker = '')
 
 	
 bad = np.asarray(np.argwhere([i == -1 for i in max_is]))

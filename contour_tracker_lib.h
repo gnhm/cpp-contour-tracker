@@ -323,14 +323,6 @@ namespace ct
 				next_point_px[1] = (int)max_move[1];
 			}
 		}
-		/*
-		if(next_point_px[-2] == next_point_px[0] && next_point_px[-2 + 1] == next_point_px[1])
-		{
-			//If not, use second method: Largest slope
-			next_point_px[0] = (int)max_move[0];
-			next_point_px[1] = (int)max_move[1];
-		}
-		*/
 	}
 
 	struct ContourStruct

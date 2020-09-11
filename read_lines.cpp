@@ -1,9 +1,12 @@
-//g++ -std=c++11 test_movie.cpp -o test_movie
-
+//g++ -std=c++11 read_lines.cpp -o read_lines
+//
 #include"temika_header.h"
 #include"get_movie_frame.h"
 #include<string.h>
 #include"contour_analyzer_lib.h"
+
+#define MAX_MODE 20
+#define MIN_MODE 0
 
 int main(int argc, char **argv)
 {
@@ -13,6 +16,7 @@ int main(int argc, char **argv)
         ct_st.position_vector = &position_vector;
         ct_st.center = &center;
 
+	double *cc = (double*) malloc(sizeof(double)*(MAX_MODE - MIN_MODE + 1));
 	for (int i = 1; i < argc; i++)
 	{
 		FILE *fptr = fopen(argv[i],"r");
@@ -22,24 +26,62 @@ int main(int argc, char **argv)
 		}
 		else
 		{
-			while(read_contour(fptr, &ct_st) != -1)
+
+			const char *contour_full_ext = "_contour_full.txt";
+			const char *fourier_ext = "_modes.txt";
+			char *fourier_filename = (char*) malloc((strlen(argv[i]) + strlen(fourier_ext) - strlen(contour_full_ext))*sizeof(char));
+			strncpy(fourier_filename, argv[i], strlen(argv[i]) - strlen(contour_full_ext));
+			strcat(fourier_filename, fourier_ext);
+
+			FILE *fptr_save = fopen(fourier_filename, "w");
+			if (fptr_save == NULL)
 			{
-				if (ct_st.max_i != 1)
-				{
-					struct Contour cs;
-					cs.max_i = ct_st.max_i - ct_st.start;
-					cs.contour = ct_st.contour_fine + 2*ct_st.start;
-					analyze_contour(&cs);
-				}
-				else
-				{
-//					printf("bad frame\n");
-				}
-				printf("\n");
+				return -1;
 			}
+			else
+			{
+
+				for (int q = MIN_MODE; q <= MAX_MODE; q++)
+				{
+				      fprintf(fptr_save, "%d\t", q);
+				}
+				fprintf(fptr_save, "L(px)");
+				fprintf(fptr_save,"\n");
+
+				double L;
+				while(read_contour(fptr, &ct_st) != -1)
+				{
+					if (ct_st.max_i != 1)
+					{
+						struct Contour cs;
+						cs.max_i = ct_st.max_i - ct_st.start;
+						cs.contour = ct_st.contour_fine + 2*ct_st.start;
+						L = analyze_contour(&cs, cc, MIN_MODE, MAX_MODE);
+						for (int q = MIN_MODE; q <= MAX_MODE; q++)
+						{
+						      fprintf(fptr_save, "%f\t", cc[q]);
+						}
+						fprintf(fptr_save,"%f", L);
+						fprintf(fptr_save,"\n");
+					}
+					else
+					{
+						for (int q = MIN_MODE; q <= MAX_MODE; q++)
+						{
+						      fprintf(fptr_save, "%d\t", -1);
+						}
+						fprintf(fptr_save,"%d", -1);
+						fprintf(fptr_save,"\n");
+					}
+				}
+			}
+			fclose(fptr_save);
+			free(fourier_filename);
 		}
 
+		fclose(fptr);
 	}
+	free(cc);
 
 	return 0;
 }

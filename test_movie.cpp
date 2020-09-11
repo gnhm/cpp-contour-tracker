@@ -71,7 +71,6 @@ int track_contour(char *moviefile)
 			//allocate the image array based on first frame
 			ct_st.im_array = (double*) malloc(sizeof(double)*frame.size_x*frame.size_y);
 
-//			ct_st.im_array = im_array;
 			ct_st.rows = frame.size_x;
 			ct_st.cols = frame.size_y;
 
@@ -106,16 +105,6 @@ int track_contour(char *moviefile)
 				break;
 			}
 		}
-
-//		ct_st.position_vector->x = old_contour[0]; 
-//		ct_st.position_vector->y = old_contour[1]; 
-//		ct_st.contour_px[0] = (int) ct_st.position_vector->x;
-//		ct_st.contour_px[1] = (int) ct_st.position_vector->y;
-//		ct_st.contour_fine[0] = (double) ct_st.contour_px[0];
-//		ct_st.contour_fine[1] = (double) ct_st.contour_px[1];
-//		ct_st.done = -1;
-//		ct_st.start = -1;
-//		ct::get_contour(&ct_st);
 
 		if (ct_st.max_i == -1) //Bad frame
 		{
