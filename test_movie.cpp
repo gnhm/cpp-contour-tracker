@@ -7,6 +7,8 @@
 
 #define SAMPLE 10
 
+#define I_MAX 100000
+
 int track_contour(char *moviefile)
 {
 	struct camera_frame_struct frame;
@@ -15,7 +17,7 @@ int track_contour(char *moviefile)
 	double *im_array;
 	char contour_filename[100];
 	char contour_filename_new[100];
-	char *movie_ext = ".movie";
+	const char *movie_ext = ".movie";
 
 	double new_center[2];
 	double new_position[2];
@@ -63,7 +65,7 @@ int track_contour(char *moviefile)
 		exit( EXIT_FAILURE );
 	}
 
-	while((offset = get_frame(file, &frame, offset)) != -1)
+	while(((offset = get_frame(file, &frame, offset)) != -1) && i < I_MAX)
 	{
 		if (i == 0)
 		{

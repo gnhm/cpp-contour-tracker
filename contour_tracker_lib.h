@@ -272,7 +272,8 @@ namespace ct
 
 	int next_point(int *next_point_px, double *next_point_fine, double *image, int rows, int cols, int *contour, int contour_i, Vector center, int horizontal_window, int slope_window, int chirality)
 	{
-		Vector c((double)contour[contour_i*2 - 2], (double)contour[contour_i*2 - 1]);
+		//Vector c((double)contour[contour_i*2 - 2], (double)contour[contour_i*2 - 1]);
+		Vector c((double)contour[2*(contour_i - 1)], (double)contour[2*(contour_i - 1) + 1]);
 		Vector r(c.x - center.x, c.y - center.y);
 		Vector t(chirality*r.y, -chirality*r.x);
 
@@ -309,8 +310,7 @@ namespace ct
 		//TODO tests, etc
 
 		//First test: Is it different from previous ten points?
-		//for (int i = 1; i++; i < min(contour_i, INITIAL_POINTS + 1))
-		int iter_max = INITIAL_POINTS + 1 < contour_i ? INITIAL_POINTS : contour_i;
+		int iter_max = INITIAL_POINTS < contour_i ? INITIAL_POINTS : contour_i;
 
 		int method = 1;
 		bool good_candidate = false;
@@ -338,17 +338,16 @@ namespace ct
 			bool test2 = true;
 			bool test3 = true;
 
-			//TODO This test is broken. 
-			for (int i = 1; i < iter_max; i++)
+			for (int i = 1; i <= iter_max; i++)
 			{
-				if(contour[-2*i] == next_point_px[0] && contour[-2*i + 1] == next_point_px[1]) //bad
+
+				if(contour[2*(contour_i - i)] == next_point_px[0] && contour[2*(contour_i - i) + 1] == next_point_px[1]) 
 				{
 					test1 = false;
 					break;
 				}
 				else
 				{
-					printf("t\n");
 					test1 = true;
 				}
 			}
@@ -362,7 +361,6 @@ namespace ct
 			if (test1 && test2 && test3)
 			{
 				good_candidate = true;
-				printf("good\n");
 				return 1;
 			}
 			else
