@@ -12,6 +12,7 @@
 
 #define INITIAL_POINTS 10
 #define CHECK_POINTS 30
+#define MAX_ANGLE_COS 0.7071
 
 namespace ct
 {
@@ -352,10 +353,18 @@ namespace ct
 				}
 			}
 
-			//TODO add test2: Check angle between candidate and current point, and between penultimate and current. If it's too big, fail
+			//TODO Does test2 make sense? Pecreaux applies this to the pixel value, but this is sort of fixed anyway... The problem is the fine point, and pecreaux does not apply tests to it
 			/*
-			if
-			contour[contour_i*2 - 2], contour[contour_i*2 - 1]
+			double dot = ((double) (contour[2*(contour_i - 1)]*next_point_px[0] + contour[2*(contour_i - 1) + 1]*next_point_px[1])) / (sqrt((double)(contour[2*(contour_i - 1)]*contour[2*(contour_i - 1)] + contour[2*(contour_i - 1) + 1]*contour[2*(contour_i - 1) + 1])) * sqrt((double)( next_point_px[0]*next_point_px[0] + next_point_px[1]*next_point_px[1] )));
+			if (dot > MAX_ANGLE_COS)
+			{
+				test2 = true;
+			}
+			else
+			{
+				test2 = false;
+				break;
+			}
 			*/
 
 			if (test1 && test2 && test3)
