@@ -270,7 +270,7 @@ namespace ct
 		//printf("Bar point v = (%f, %f)\n", bar_point_v[0], bar_point_v[1]);
 	}
 
-	void next_point(int *next_point_px, double *next_point_fine, double *image, int rows, int cols, int *contour, int contour_i, Vector center, int horizontal_window, int slope_window, int chirality)
+	int next_point(int *next_point_px, double *next_point_fine, double *image, int rows, int cols, int *contour, int contour_i, Vector center, int horizontal_window, int slope_window, int chirality)
 	{
 		Vector c((double)contour[contour_i*2 - 2], (double)contour[contour_i*2 - 1]);
 		Vector r(c.x - center.x, c.y - center.y);
@@ -283,7 +283,7 @@ namespace ct
 		double numerator_y = 0;
 		double denominator = 0;
 
-		double max_move[2];
+		int max_move[2];
 
 		for (int i = 0; i < 4; i++)
 		{
@@ -298,31 +298,81 @@ namespace ct
 			if (i == 0 || bar_point_v_slope[2] > max_slope_found)
 			{
 				max_slope_found = bar_point_v_slope[2];
-				max_move[0] = bar_point_v_slope[0];
-				max_move[1] = bar_point_v_slope[1];
+				max_move[0] = projection*unit_vectors_px[ax].x + c.x;
+				max_move[1] = projection*unit_vectors_px[ax].y + c.y;
 			}
 
 		}
 		next_point_fine[0] = numerator_x/denominator;
 		next_point_fine[1] = numerator_y/denominator;
 
-		//First method: Round
-		next_point_px[0] = (int) next_point_fine[0];
-		next_point_px[1] = (int) next_point_fine[1];
+		//TODO tests, etc
 
 		//First test: Is it different from previous ten points?
 		//for (int i = 1; i++; i < min(contour_i, INITIAL_POINTS + 1))
 		int iter_max = INITIAL_POINTS + 1 < contour_i ? INITIAL_POINTS : contour_i;
-		for (int i = 1; i < iter_max; i++)
 
+		int method = 1;
+		bool good_candidate = false;
+		while(!good_candidate)
 		{
-			if(next_point_px[-2*i] == next_point_px[0] && next_point_px[-2*i + 1] == next_point_px[1])
+			if (method == 1)
 			{
-				//If not, use second method: Largest slope
+				//First method: Round
+				next_point_px[0] = (int) next_point_fine[0];
+				next_point_px[1] = (int) next_point_fine[1];
+			}
+			else if (method == 2)
+			{
+				//If not, use second method: Largest slope TODO Is this right?
 				next_point_px[0] = (int)max_move[0];
 				next_point_px[1] = (int)max_move[1];
 			}
+
+			else if (method == 3)
+			{
+				return -1; //TODO This needs to stop the contour tracking proceedure
+			}
+
+			bool test1 = false;
+			bool test2 = true;
+			bool test3 = true;
+
+			//TODO This test is broken. 
+			for (int i = 1; i < iter_max; i++)
+			{
+				if(contour[-2*i] == next_point_px[0] && contour[-2*i + 1] == next_point_px[1]) //bad
+				{
+					test1 = false;
+					break;
+				}
+				else
+				{
+					printf("t\n");
+					test1 = true;
+				}
+			}
+
+			//TODO add test2: Check angle between candidate and current point, and between penultimate and current. If it's too big, fail
+			/*
+			if
+			contour[contour_i*2 - 2], contour[contour_i*2 - 1]
+			*/
+
+			if (test1 && test2 && test3)
+			{
+				good_candidate = true;
+				printf("good\n");
+				return 1;
+			}
+			else
+			{
+				method++;
+			}
 		}
+
+		
+
 	}
 
 	struct ContourStruct
@@ -351,7 +401,10 @@ namespace ct
 		//i counts the number of points in a contour. Since the first point must be already given, we start at i = 1
 		for (int i = 1; i < ct_st->max - 2; i++)
 		{
-			ct::next_point(ct_st->contour_px + 2*i, ct_st->contour_fine + 2*i, ct_st->im_array, ct_st->rows, ct_st->cols, ct_st->contour_px, i, *(ct_st->center), ct_st->horizontal_window, ct_st->slope_window, ct_st->chirality);
+			if (ct::next_point(ct_st->contour_px + 2*i, ct_st->contour_fine + 2*i, ct_st->im_array, ct_st->rows, ct_st->cols, ct_st->contour_px, i, *(ct_st->center), ct_st->horizontal_window, ct_st->slope_window, ct_st->chirality) == -1)
+			{
+				return NULL;
+			}
 			//at this point we now have i+1 points in our contour, since we have added to it. These is point p + 2*i
 
 			//after a certain point
@@ -367,13 +420,10 @@ namespace ct
 					{
 						ct::next_point(ct_st->contour_px + 2*(i+1), ct_st->contour_fine + 2*(i+1), ct_st->im_array, ct_st->rows, ct_st->cols, ct_st->contour_px, i+1, *(ct_st->center), ct_st->horizontal_window, ct_st->slope_window, ct_st->chirality);
 						ct::next_point(ct_st->contour_px + 2*(i+2), ct_st->contour_fine + 2*(i+2), ct_st->im_array, ct_st->rows, ct_st->cols, ct_st->contour_px, i+2, *(ct_st->center), ct_st->horizontal_window, ct_st->slope_window, ct_st->chirality);
-						//ct_st->max_i = i+1;
 						ct_st->max_i = i+2;
-						//ct_st->start = ct_st->burn + j;
 						ct_st->start = ct_st->burn + j + 1;
 						ct_st->done = 1;
 						return NULL;
-						//break;
 					}
 				}
 			}
