@@ -33,6 +33,9 @@ int main(int argc, char **argv)
 			strncpy(fourier_filename, argv[i], strlen(argv[i]) - strlen(contour_full_ext));
 			strcat(fourier_filename, fourier_ext);
 
+			int good_line_count = 0; //REMOVE
+			int bad_line_count = 0; //REMOVE
+
 			FILE *fptr_save = fopen(fourier_filename, "w");
 			if (fptr_save == NULL)
 			{
@@ -41,6 +44,7 @@ int main(int argc, char **argv)
 			else
 			{
 
+				//Print header
 				for (int q = MIN_MODE; q <= MAX_MODE; q++)
 				{
 				      fprintf(fptr_save, "%d\t", q);
@@ -51,7 +55,8 @@ int main(int argc, char **argv)
 				double L;
 				while(read_contour(fptr, &ct_st) != -1)
 				{
-					if (ct_st.max_i != 1)
+//					printf("max_i = %d\n", ct_st.max_i);
+					if (ct_st.max_i != -1)
 					{
 						struct Contour cs;
 						cs.max_i = ct_st.max_i - ct_st.start;
@@ -63,6 +68,7 @@ int main(int argc, char **argv)
 						}
 						fprintf(fptr_save,"%f", L);
 						fprintf(fptr_save,"\n");
+						good_line_count++;
 					}
 					else
 					{
@@ -72,11 +78,14 @@ int main(int argc, char **argv)
 						}
 						fprintf(fptr_save,"%d", -1);
 						fprintf(fptr_save,"\n");
+						bad_line_count++;
 					}
 				}
 			}
 			fclose(fptr_save);
 			free(fourier_filename);
+			printf("good_line_count %d\n", good_line_count);
+			printf("bad_line_count %d\n", bad_line_count);
 		}
 
 		fclose(fptr);
