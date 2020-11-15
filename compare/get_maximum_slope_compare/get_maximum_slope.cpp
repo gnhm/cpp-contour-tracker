@@ -26,8 +26,8 @@ int main(int argc, char **argv)
 		y[i] = atof(argv[i + 3 + n]);
 	}
 
-	double ml[n-window];
-	double bl[n-window];
+//	double ml[n-window];
+//	double bl[n-window];
 
 	double slope_intercept[2];
 	get_maximum_slope(slope_intercept, x, y, n, window, orientation);

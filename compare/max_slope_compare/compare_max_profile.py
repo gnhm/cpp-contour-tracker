@@ -27,8 +27,8 @@ c_p_L = []
 p_p_L = []
 
 r = []
-for x in range(image.shape[0])[::10]:
-	for y in range(image.shape[1])[::10]:
+for x in range(image.shape[0])[horizontal_window:-horizontal_window:10]:
+	for y in range(image.shape[1])[horizontal_window:-horizontal_window:10]:
 		c = [x,y]
 		for axis, v in unit_vectors.items():
 			p_p = max_slope(image, c, axis, center, slope_window = slope_window , horizontal_window = horizontal_window )
@@ -44,9 +44,12 @@ for x in range(image.shape[0])[::10]:
 
 			c_r = subprocess.check_output(['./max_profile'] + args)
 			c_p = np.asfarray(c_r.split('\t')[:-1])
-			c_p = (c_p[:2], c_p[-1])
-			r.append([c_p[0] - p_p[0], c_p[1] - p_p[1]])
-			points.append([x,y])
-			c_p_L.append(c_p)
-			p_p_L.append(p_p)
-			axes.append(axis)
+			if not np.all(np.abs(np.hstack((p_p[0], p_p[1])) - np.asfarray(c_p)) < 0.1):
+				print c_p, p_p
+				exit()
+#			c_p = (c_p[:2], c_p[-1])
+#			r.append([c_p[0] - p_p[0], c_p[1] - p_p[1]])
+#			points.append([x,y])
+#			c_p_L.append(c_p)
+#			p_p_L.append(p_p)
+#			axes.append(axis)
