@@ -1,3 +1,5 @@
+#include <math.h>
+
 void running_slope(double *m_l, double *b_l, double *x, double *y, int n, int window)
 {
 	double x_m = 0;
@@ -50,21 +52,47 @@ void running_slope(double *m_l, double *b_l, double *x, double *y, int n, int wi
 
 void get_maximum_slope(double *slope_intercept, double *x, double *y, int n, int window, int orientation)
 {
-	double m_l[n - window + 1];
-	double b_l[n - window + 1];
+	double m_l[n - window];
+	double b_l[n - window];
 	running_slope(m_l, b_l, x, y, n, window);
-	slope_intercept[0] = m_l[0];
-	slope_intercept[1] = b_l[0];
+	int i_max = 0;
 	for (int i = 0; i < n - window; i++)
 	{
-		if (((orientation == 1) && (m_l[i] < slope_intercept[0])) || ((orientation == -1) && (m_l[i] > slope_intercept[0])))
-//		if (m_l[i] < slope_intercept[0])
+		if (((orientation == 1) && (m_l[i] < m_l[i_max])) || ((orientation == -1) && (m_l[i] > m_l[i_max])))
 		{
-			slope_intercept[0] = m_l[i];
-			slope_intercept[1] = b_l[i];
+			if (fabs(m_l[i] - m_l[i_max]) > 1E-3)
+			{
+				i_max = i;
+			}
 		}
 	}
+	slope_intercept[0] = m_l[i_max];
+	slope_intercept[1] = b_l[i_max];
 
+}
+
+void get_maximum_slope_and_running(double *slope_intercept, double *m_l, double *b_l, double *x, double *y, int n, int window, int orientation)
+{
+	running_slope(m_l, b_l, x, y, n, window);
+//	slope_intercept[0] = m_l[0];
+//	slope_intercept[1] = b_l[0];
+	int i_max = 0;
+//	int i_max = n - window - 1;
+	for (int i = 0; i < n - window; i++)
+	//for (int i = n - window - 1; i >= 0; i--)
+	{
+		if (((orientation == 1) && (m_l[i] < m_l[i_max])) || ((orientation == -1) && (m_l[i] > m_l[i_max])))
+		{
+			if (fabs(m_l[i] - m_l[i_max]) > 1E-3)
+			{
+		//	slope_intercept[0] = m_l[i];
+		//	slope_intercept[1] = b_l[i];
+				i_max = i;
+			}
+		}
+	}
+	slope_intercept[0] = m_l[i_max];
+	slope_intercept[1] = b_l[i_max];
 }
 
 void get_maximum_slope_broken(double *slope_intercept, double *x, double *y, int n, int window, int orientation)
