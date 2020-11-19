@@ -14,6 +14,8 @@
 #define CHECK_POINTS 30
 #define MAX_ANGLE_COS 0.7071
 
+#define MIN_SLOPE 1.0
+
 namespace ct
 {
 	class Vector
@@ -234,26 +236,76 @@ namespace ct
 		{
 			case x:
 				get_maximum_slope(slope_intercept, full_profile, full_profile + 2*coordinates_width, coordinates_width, slope_window, orientation);
-				bar_point = (p - slope_intercept[1])/slope_intercept[0];
+				if (fabs(slope_intercept[0]) < MIN_SLOPE)
+				{
+					bar_point = 0;
+					for (int i = 0; i < coordinates_width; i++)
+					{
+						bar_point += full_profile[i];
+					}
+					bar_point /= (float) coordinates_width;
+				}
+				else
+				{
+					bar_point = (p - slope_intercept[1])/slope_intercept[0];
+				}
 				bar_point_v[0] = bar_point;
 				bar_point_v[1] = c.y;
 				break;
 			case y:
 				get_maximum_slope(slope_intercept, full_profile + coordinates_width, full_profile + 2*coordinates_width, coordinates_width, slope_window, orientation);
-				bar_point = (p - slope_intercept[1])/slope_intercept[0];
+				//bar_point = (p - slope_intercept[1])/slope_intercept[0];
+				if (fabs(slope_intercept[0]) < MIN_SLOPE)
+				{
+					bar_point = 0;
+					for (int i = 0; i < coordinates_width; i++)
+					{
+						bar_point += full_profile[i + coordinates_width];
+					}
+					bar_point /= (float) coordinates_width;
+				}
+				else
+				{
+					bar_point = (p - slope_intercept[1])/slope_intercept[0];
+				}
 				bar_point_v[0] = c.x;
 				bar_point_v[1] = bar_point;
 				break;
 			case v:
 				get_maximum_slope(slope_intercept, full_profile, full_profile + 2*coordinates_width, coordinates_width, slope_window, orientation);
-				bar_point = (p - slope_intercept[1])/slope_intercept[0];
+				//bar_point = (p - slope_intercept[1])/slope_intercept[0];
+				if (fabs(slope_intercept[0]) < MIN_SLOPE)
+				{
+					bar_point = 0;
+					for (int i = 0; i < coordinates_width; i++)
+					{
+						bar_point += full_profile[i];
+					}
+					bar_point /= (float) coordinates_width;
+				}
+				else
+				{
+					bar_point = (p - slope_intercept[1])/slope_intercept[0];
+				}
 				bar_point_v[0] = bar_point;
 				bar_point_v[1] = (bar_point - c.x) + c.y;
 				slope_intercept[0] /= SQRT2;
 				break;
 			case w:
 				get_maximum_slope(slope_intercept, full_profile + coordinates_width, full_profile + 2*coordinates_width, coordinates_width, slope_window, orientation);
-				bar_point = (p - slope_intercept[1])/slope_intercept[0];
+				if (fabs(slope_intercept[0]) < MIN_SLOPE)
+				{
+					bar_point = 0;
+					for (int i = 0; i < coordinates_width; i++)
+					{
+						bar_point += full_profile[i + coordinates_width];
+					}
+					bar_point /= (float) coordinates_width;
+				}
+				else
+				{
+					bar_point = (p - slope_intercept[1])/slope_intercept[0];
+				}
 				bar_point_v[1] = bar_point;
 				bar_point_v[0] = c.y - bar_point + c.x;
 				slope_intercept[0] /= SQRT2;
@@ -342,7 +394,7 @@ namespace ct
 			for (int i = 1; i <= iter_max; i++)
 			{
 
-				if(contour[2*(contour_i - i)] == next_point_px[0] && contour[2*(contour_i - i) + 1] == next_point_px[1]) 
+				if((contour[2*(contour_i - i)] == next_point_px[0]) && (contour[2*(contour_i - i) + 1] == next_point_px[1]))
 				{
 					test1 = false;
 					break;

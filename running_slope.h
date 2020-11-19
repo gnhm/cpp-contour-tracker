@@ -68,7 +68,6 @@ void get_maximum_slope(double *slope_intercept, double *x, double *y, int n, int
 	}
 	slope_intercept[0] = m_l[i_max];
 	slope_intercept[1] = b_l[i_max];
-
 }
 
 void get_maximum_slope_and_running(double *slope_intercept, double *m_l, double *b_l, double *x, double *y, int n, int window, int orientation)
