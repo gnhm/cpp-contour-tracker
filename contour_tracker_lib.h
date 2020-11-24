@@ -330,6 +330,14 @@ namespace ct
 		Vector r(c.x - center.x, c.y - center.y);
 		Vector t(chirality*r.y, -chirality*r.x);
 
+		/*
+		printf("%f\t%f\n", c.x, c.y);
+		printf("%f\t%f\n", r.x, r.y);
+		printf("%f\t%f\n", t.x, t.y);
+		printf("%d\n", chirality);
+		return 1;
+		*/
+
 		double max_slope_found = 0;
 		double bar_point_v_slope[3];
 
@@ -344,8 +352,14 @@ namespace ct
 			axes ax = axes_int[i];
 			Vector v = unit_vectors[ax];
 			int projection = dot(v,t) > 0 ? 1 : - 1;
+
 			Vector candidate(projection*unit_vectors_px[ax].x + c.x, projection*unit_vectors_px[ax].y + c.y);
-			max_slope(bar_point_v_slope, image, rows, cols, candidate, axes_int[perpendicular[i]], center, horizontal_window, slope_window);
+
+			bar_point_v_slope[0] = 0;
+			bar_point_v_slope[1] = 0;
+			bar_point_v_slope[2] = 0;
+			max_slope(bar_point_v_slope, image, rows, cols, candidate, ax, center, horizontal_window, slope_window);
+
 			numerator_x += bar_point_v_slope[0]*std::abs(bar_point_v_slope[2]);
 			numerator_y += bar_point_v_slope[1]*std::abs(bar_point_v_slope[2]);
 			denominator += std::abs(bar_point_v_slope[2]);
