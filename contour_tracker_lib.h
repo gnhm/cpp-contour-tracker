@@ -366,8 +366,11 @@ namespace ct
 			if (i == 0 || bar_point_v_slope[2] > max_slope_found)
 			{
 				max_slope_found = bar_point_v_slope[2];
-				max_move[0] = projection*unit_vectors_px[ax].x + c.x;
-				max_move[1] = projection*unit_vectors_px[ax].y + c.y;
+				//max_move[0] = projection*unit_vectors_px[ax].x + c.x;
+				//max_move[1] = projection*unit_vectors_px[ax].y + c.y;
+                                max_move[0] = projection*unit_vectors_px[perpendicular[axes_int[ax]]].x + c.x;
+                                max_move[1] = projection*unit_vectors_px[perpendicular[axes_int[ax]]].y + c.y;
+
 			}
 
 		}
@@ -376,8 +379,26 @@ namespace ct
 
 		//TODO tests, etc
 
-		//First test: Is it different from previous ten points?
+
+		//iter_max is INITIAL_POINTS, unless we don't have enough points yet, in which case =  contour_i
 		int iter_max = INITIAL_POINTS < contour_i ? INITIAL_POINTS : contour_i;
+
+		
+		next_point_px[0] = round( next_point_fine[0] );
+		next_point_px[1] = round( next_point_fine[1] );
+		/*
+		for (int i = 1; i <= iter_max; i++)
+		{
+			printf("%d, %d\n", contour[2*(contour_i - i)], (contour[2*(contour_i - i) + 1]));
+			printf("%f, %f\n", next_point_fine[0], next_point_fine[1]);
+			if((contour[2*(contour_i - i)] == round( next_point_fine[0])) && (contour[2*(contour_i - i) + 1] == round( next_point_fine[1] )))
+			{
+				printf("Doubled back!\n");
+				
+			}
+		}
+		*/
+
 
 		int method = 1;
 		bool good_candidate = false;
@@ -386,12 +407,14 @@ namespace ct
 			if (method == 1)
 			{
 				//First method: Round
-				next_point_px[0] = (int) next_point_fine[0];
-				next_point_px[1] = (int) next_point_fine[1];
+//				printf("First method: Round\n");
+				next_point_px[0] = round( next_point_fine[0]);
+				next_point_px[1] = round( next_point_fine[1]);
 			}
 			else if (method == 2)
 			{
 				//If not, use second method: Largest slope TODO Is this right?
+//				printf("Second method: Biggest = %f \n", max_slope_found);
 				next_point_px[0] = (int)max_move[0];
 				next_point_px[1] = (int)max_move[1];
 			}
