@@ -476,6 +476,45 @@ namespace ct
 
 	void *get_contour(struct ContourStruct* ct_st)
 	{
+		printf("%f\t%f\n", ct_st->contour_fine[0], ct_st->contour_fine[1]);
+		printf("%d\t%d\n", ct_st->contour_px[0], ct_st->contour_px[1]);
+		int i = 1;
+		while (ct_st->done != 1)
+		{
+			if (i == ct_st->max)
+			{
+				ct_st->max_i = -1;
+				ct_st->done = 1;
+				return NULL;
+			}
+
+			next_point(ct_st->contour_px + 2*i, ct_st->contour_fine + 2*i, ct_st->im_array, ct_st->rows, ct_st->cols, ct_st->contour_px, i, *(ct_st->center), ct_st->horizontal_window, ct_st->slope_window, ct_st->chirality);
+			printf("%f\t%f\n", ct_st->contour_fine[2*i], ct_st->contour_fine[2*i + 1]);
+			printf("%d\t%d\n", ct_st->contour_px[2*i], ct_st->contour_px[2*i + 1]);
+			printf("\n");
+
+
+			//Check whether the next px point is somewhere within the beginning, ignoring the burnt bit
+			if (i > ct_st->burn)
+			{
+				for (int j = ct_st->burn; j < i; j++)
+				{
+					if ((ct_st->contour_px[2*i] == ct_st->contour_px[2*j]) && (ct_st->contour_px[2*i + 1] == ct_st->contour_px[2*j + 1]))
+					{
+						printf("Loop closed at i = %d\n", i);
+						ct_st->max_i = i;
+						ct_st->done = 1;
+						return NULL;
+					}
+				}
+			}
+			i++;
+		}
+	}
+
+
+	void *get_contour_bad(struct ContourStruct* ct_st)
+	{
 		ct_st->max_i = -1;
 
 		//i counts the number of points in a contour. Since the first point must be already given, we start at i = 1

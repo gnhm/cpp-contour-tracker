@@ -32,6 +32,8 @@ c_fine = np.asfarray(map(lambda x: x.split("\t"), filter(lambda x: bool(x), cc.s
 c_px = np.asarray(map(lambda x: x.split("\t"), filter(lambda x: bool(x), cc.split("\n")))[1::2], dtype = 'int')
 i_max = int(filter(lambda x: bool(x), cc.split("\n"))[-1].split(" = ")[-1])
 
+
 p_px, p_f = get_contour(image, first_point, center, end_points = None, N = 1000, burn = 10, plot = False, verbose = False, debug = False, slope_window = 4, horizontal_window = 5, adjust_edge = False)
-#print c_px
+
+print np.mean(c_fine[10:] - p_f)
 
