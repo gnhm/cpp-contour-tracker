@@ -214,12 +214,6 @@ long int read_contour(FILE *fptr, ct::ContourStruct *ct_st)
 					ct_st->max_i = atoi(pstart + 3);
 				}
 
-				else if(strstr(line, "start = ") != NULL)
-				{
-					char *pstart = strstr(line, " = ");
-					ct_st->start = atoi(pstart + 3);
-				}
-
 				else if(strstr(line, "burn = ") != NULL)
 				{
 					char *pstart = strstr(line, " = ");

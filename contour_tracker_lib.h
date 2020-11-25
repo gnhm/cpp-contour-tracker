@@ -325,7 +325,6 @@ namespace ct
 
 	int next_point(int *next_point_px, double *next_point_fine, double *image, int rows, int cols, int *contour, int contour_i, Vector center, int horizontal_window, int slope_window, int chirality)
 	{
-		//Vector c((double)contour[contour_i*2 - 2], (double)contour[contour_i*2 - 1]);
 		Vector c((double)contour[2*(contour_i - 1)], (double)contour[2*(contour_i - 1) + 1]);
 		Vector r(c.x - center.x, c.y - center.y);
 		Vector t(chirality*r.y, -chirality*r.x);
@@ -471,13 +470,12 @@ namespace ct
 		int chirality;
 		int max_i;
 		int done;
-		int start;
 	};
 
 	void *get_contour(struct ContourStruct* ct_st)
 	{
-		printf("%f\t%f\n", ct_st->contour_fine[0], ct_st->contour_fine[1]);
-		printf("%d\t%d\n", ct_st->contour_px[0], ct_st->contour_px[1]);
+		//printf("%f\t%f\n", ct_st->contour_fine[0], ct_st->contour_fine[1]);
+		//printf("%d\t%d\n", ct_st->contour_px[0], ct_st->contour_px[1]);
 		int i = 1;
 		while (ct_st->done != 1)
 		{
@@ -489,9 +487,11 @@ namespace ct
 			}
 
 			next_point(ct_st->contour_px + 2*i, ct_st->contour_fine + 2*i, ct_st->im_array, ct_st->rows, ct_st->cols, ct_st->contour_px, i, *(ct_st->center), ct_st->horizontal_window, ct_st->slope_window, ct_st->chirality);
+			/*
 			printf("%f\t%f\n", ct_st->contour_fine[2*i], ct_st->contour_fine[2*i + 1]);
 			printf("%d\t%d\n", ct_st->contour_px[2*i], ct_st->contour_px[2*i + 1]);
 			printf("\n");
+			*/
 
 
 			//Check whether the next px point is somewhere within the beginning, ignoring the burnt bit
@@ -501,7 +501,7 @@ namespace ct
 				{
 					if ((ct_st->contour_px[2*i] == ct_st->contour_px[2*j]) && (ct_st->contour_px[2*i + 1] == ct_st->contour_px[2*j + 1]))
 					{
-						printf("Loop closed at i = %d\n", i);
+						//printf("Loop closed at i = %d\n", i);
 						ct_st->max_i = i;
 						ct_st->done = 1;
 						return NULL;
@@ -510,46 +510,6 @@ namespace ct
 			}
 			i++;
 		}
-	}
-
-
-	void *get_contour_bad(struct ContourStruct* ct_st)
-	{
-		ct_st->max_i = -1;
-
-		//i counts the number of points in a contour. Since the first point must be already given, we start at i = 1
-		for (int i = 1; i < ct_st->max - 2; i++)
-		{
-			if (ct::next_point(ct_st->contour_px + 2*i, ct_st->contour_fine + 2*i, ct_st->im_array, ct_st->rows, ct_st->cols, ct_st->contour_px, i, *(ct_st->center), ct_st->horizontal_window, ct_st->slope_window, ct_st->chirality) == -1)
-			{
-				return NULL;
-			}
-			//at this point we now have i+1 points in our contour, since we have added to it. These is point p + 2*i
-
-			//after a certain point
-			//check whether new point matches any point in set [burn, burn+checkpoints]
-
-			if (i > ct_st->burn + CHECK_POINTS) //if we have collected more than burn points...
-			{
-				//check whether we have closed the loop. 
-				for (int j = 0; j < CHECK_POINTS; j++)
-				{
-					if (ct_st->contour_px[2*i] == ct_st->contour_px[2*(ct_st->burn + j)] && ct_st->contour_px[2*i + 1] == ct_st->contour_px[2*(ct_st->burn + j) + 1])
-					//We have looped around in px, but the fine points might disagree. Next frame, however, will have both agree
-					{
-						ct::next_point(ct_st->contour_px + 2*(i+1), ct_st->contour_fine + 2*(i+1), ct_st->im_array, ct_st->rows, ct_st->cols, ct_st->contour_px, i+1, *(ct_st->center), ct_st->horizontal_window, ct_st->slope_window, ct_st->chirality);
-						ct::next_point(ct_st->contour_px + 2*(i+2), ct_st->contour_fine + 2*(i+2), ct_st->im_array, ct_st->rows, ct_st->cols, ct_st->contour_px, i+2, *(ct_st->center), ct_st->horizontal_window, ct_st->slope_window, ct_st->chirality);
-						ct_st->max_i = i+2;
-						ct_st->start = ct_st->burn + j + 1;
-						ct_st->done = 1;
-						return NULL;
-					}
-				}
-			}
-		}
-
-		ct_st->done = 1;
-		return NULL;
 	}
 
 	void *v_get_contour(void* ct_st)
@@ -569,21 +529,24 @@ namespace ct
 			fprintf(fptr, "Center = (%f, %f)\n", ct_st.center->x, ct_st.center->y);
 			fprintf(fptr, "Position vector = (%f, %f)\n", ct_st.position_vector->x, ct_st.position_vector->y);
 			fprintf(fptr, "max_i = %d\n", ct_st.max_i);
-			fprintf(fptr, "start = %d\n", ct_st.start);
+			fprintf(fptr, "max = %d\n", ct_st.max);
 			fprintf(fptr, "burn = %d\n", ct_st.burn);
+			fprintf(fptr, "rows = %d\n", ct_st.rows);
+			fprintf(fptr, "cols = %d\n", ct_st.cols);
 			fprintf(fptr, "horizontal_window = %d\n", ct_st.horizontal_window);
 			fprintf(fptr, "slope_window = %d\n", ct_st.slope_window);
 			fprintf(fptr, "chirality = %d\n", ct_st.chirality);
 
 			fprintf(fptr, "<contour_fine>\n");
-			int n_max = ct_st.max_i == -1 ? ct_st.max : ct_st.max_i;
-			for (int i = 0; i < n_max; i++)
+			int n_max = ct_st.max_i == -1 ? ct_st.max : ct_st.max_i + 1;
+			int n_min = ct_st.max_i == -1 ? 0 : ct_st.burn;
+			for (int i = n_min; i < n_max; i++)
 			{
 				fprintf(fptr, "%f\t%f\n", ct_st.contour_fine[2*i], ct_st.contour_fine[2*i + 1]);
 			}
 			fprintf(fptr, "</contour_fine>\n");
 			fprintf(fptr, "<contour_px>\n");
-			for (int i = 0; i < n_max; i++)
+			for (int i = n_min; i < n_max; i++)
 			{
 				fprintf(fptr, "%d\t%d\n", ct_st.contour_px[2*i], ct_st.contour_px[2*i + 1]);
 			}

@@ -30,7 +30,7 @@ FILE *open_file(const char *filename)
 	return moviefile;
 }
 
-int get_frame(FILE *moviefile, struct camera_frame_struct *temika_frame, long offset)
+int get_frame(FILE *moviefile, struct camera_frame_struct *temika_frame)
 {
 	int index;
         bool found;
@@ -42,9 +42,13 @@ int get_frame(FILE *moviefile, struct camera_frame_struct *temika_frame, long of
         uint32_t size_x, size_y;
 	uint8_t *imagebuf;
 	int frame = 0;
+	long offset = 0;
+	long start = ftell(moviefile);
 
 	found = false;
 
+//	printf("first = %ld\n", ftell( moviefile ));
+//	fseek( moviefile, offset, SEEK_SET );
 	while ( fread( &magic, sizeof( uint32_t ), 1, moviefile ) == 1 )
 	{
 		if ( magic == CAMERA_MOVIE_MAGIC ) 
@@ -53,10 +57,11 @@ int get_frame(FILE *moviefile, struct camera_frame_struct *temika_frame, long of
 			break;
 		}
 		offset++;
-		fseek( moviefile, offset, SEEK_SET );
+		fseek( moviefile, start + offset, SEEK_SET );
 	}
 	// Go to the beginning of frames
-	fseek( moviefile, offset, SEEK_SET );
+	fseek( moviefile, start + offset, SEEK_SET );
+	//printf("second = %ld\n", ftell( moviefile ));
 
 	if ( found )
 	{
@@ -135,6 +140,8 @@ int get_frame(FILE *moviefile, struct camera_frame_struct *temika_frame, long of
 			//camera_frame.length_data + IIDC_MOVIE_HEADER_LENGTH + offset
 			//n*(camera_frame.length_data + IIDC_MOVIE_HEADER_LENGTH) + offset
 			offset = ftell( moviefile );
+			fseek(moviefile, -12, SEEK_CUR);
+//			printf("last = %ld\n", ftell( moviefile ));
 			//printf("offset internal 2 = %ld\n", offset);
 
 			temika_frame->image = imagebuf;
