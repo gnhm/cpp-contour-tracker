@@ -347,6 +347,7 @@ namespace ct
 
 		int max_move[2];
 
+		//iterate through axes
 		for (int i = 0; i < 4; i++)
 		{
 			axes ax = axes_int[i];
@@ -366,19 +367,16 @@ namespace ct
 			if (i == 0 || bar_point_v_slope[2] > max_slope_found)
 			{
 				max_slope_found = bar_point_v_slope[2];
-				//max_move[0] = projection*unit_vectors_px[ax].x + c.x;
-				//max_move[1] = projection*unit_vectors_px[ax].y + c.y;
-                                max_move[0] = projection*unit_vectors_px[perpendicular[axes_int[ax]]].x + c.x;
-                                max_move[1] = projection*unit_vectors_px[perpendicular[axes_int[ax]]].y + c.y;
+
+				int l_projection = dot(unit_vectors[perpendicular[i]],t) > 0 ? 1 : - 1;
+                                max_move[0] = l_projection*unit_vectors_px[perpendicular[axes_int[ax]]].x + c.x;
+                                max_move[1] = l_projection*unit_vectors_px[perpendicular[axes_int[ax]]].y + c.y;
 
 			}
 
 		}
 		next_point_fine[0] = numerator_x/denominator;
 		next_point_fine[1] = numerator_y/denominator;
-
-		//TODO tests, etc
-
 
 		//iter_max is INITIAL_POINTS, unless we don't have enough points yet, in which case =  contour_i
 		int iter_max = INITIAL_POINTS < contour_i ? INITIAL_POINTS : contour_i;
@@ -414,7 +412,7 @@ namespace ct
 			else if (method == 2)
 			{
 				//If not, use second method: Largest slope TODO Is this right?
-//				printf("Second method: Biggest = %f \n", max_slope_found);
+				//printf("Second method: Biggest = %f \n", max_slope_found);
 				next_point_px[0] = (int)max_move[0];
 				next_point_px[1] = (int)max_move[1];
 			}
@@ -441,20 +439,6 @@ namespace ct
 					test1 = true;
 				}
 			}
-
-			//TODO Does test2 make sense? Pecreaux applies this to the pixel value, but this is sort of fixed anyway... The problem is the fine point, and pecreaux does not apply tests to it
-			/*
-			double dot = ((double) (contour[2*(contour_i - 1)]*next_point_px[0] + contour[2*(contour_i - 1) + 1]*next_point_px[1])) / (sqrt((double)(contour[2*(contour_i - 1)]*contour[2*(contour_i - 1)] + contour[2*(contour_i - 1) + 1]*contour[2*(contour_i - 1) + 1])) * sqrt((double)( next_point_px[0]*next_point_px[0] + next_point_px[1]*next_point_px[1] )));
-			if (dot > MAX_ANGLE_COS)
-			{
-				test2 = true;
-			}
-			else
-			{
-				test2 = false;
-				break;
-			}
-			*/
 
 			if (test1 && test2 && test3)
 			{

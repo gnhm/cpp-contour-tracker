@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 
 	ct::ContourStruct ct_st;
         ct_st.max = 1000;
-        ct_st.burn = 20;
+        ct_st.burn = 10;
         ct_st.chirality = chirality;
         ct_st.contour_fine = (double*) malloc(2*ct_st.max*sizeof(double));
         ct_st.contour_px = (int*) malloc(2*ct_st.max*sizeof(int));
@@ -50,22 +50,43 @@ int main(int argc, char **argv)
 	ct_st.contour_fine[0] = first_point.x;
 	ct_st.contour_fine[1] = first_point.y;
 
-	//ct::get_contour(&ct_st);
+
 	//next_point(next_point_px, next_point_fine, im_array, frame.size_x, frame.size_y, contour, contour_i, center, horizontal_window, slope_window, chirality);
 	printf("%f\t%f\n", ct_st.contour_fine[0], ct_st.contour_fine[1]); 
 	printf("%d\t%d\n", ct_st.contour_px[0], ct_st.contour_px[1]); 
-	for (int i = 1; i<n; i++)
+	int i = 1;
+	//for (int i = 1; i < ct_st.max + 1; i++)
+	while (ct_st.done != 1)
 	{
+		if (i == ct_st.max)
+		{
+			printf("Hit max iterations\n");
+			ct_st.max_i = -1;
+			ct_st.done = 1;
+			break;
+		}
+
 		next_point(ct_st.contour_px + 2*i, ct_st.contour_fine + 2*i, ct_st.im_array, ct_st.rows, ct_st.cols, ct_st.contour_px, i, *(ct_st.center), ct_st.horizontal_window, ct_st.slope_window, ct_st.chirality);
 		printf("%f\t%f\n", ct_st.contour_fine[2*i], ct_st.contour_fine[2*i + 1]); 
 		printf("%d\t%d\n", ct_st.contour_px[2*i], ct_st.contour_px[2*i + 1]); 
-	}
+		printf("\n");
 
-	/*
-	printf("%d\t%d\n", contour[0], contour[1]);
-	printf("%f\t%f\n", next_point_fine[0], next_point_fine[1]);
-	printf("%d\t%d\n", next_point_px[0], next_point_px[1]);
-	*/
+		//Check whether the next px point is somewhere within the beginning, ignoring the burnt bit
+		if (i > ct_st.burn)
+		{
+			for (int j = ct_st.burn; j < i; j++)
+			{
+				if ((ct_st.contour_px[2*i] == ct_st.contour_px[2*j]) && (ct_st.contour_px[2*i + 1] == ct_st.contour_px[2*j + 1]))
+				{
+					printf("Loop closed at i = %d\n", i);
+					ct_st.max_i = i;
+					ct_st.done = 1;
+					break;
+				}
+			}
+		}
+		i++;
+	}
 
 	return 0;
 }

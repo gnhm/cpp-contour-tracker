@@ -27,24 +27,11 @@ args.append("{:d}".format(n+1))
 
 
 print "C:"
-print subprocess.check_output(['./get_contour'] + args)
+cc =  subprocess.check_output(['./get_contour'] + args)
+c_fine = np.asfarray(map(lambda x: x.split("\t"), filter(lambda x: bool(x), cc.split("\n")))[:-1:2])
+c_px = np.asarray(map(lambda x: x.split("\t"), filter(lambda x: bool(x), cc.split("\n")))[1::2], dtype = 'int')
+i_max = int(filter(lambda x: bool(x), cc.split("\n"))[-1].split(" = ")[-1])
 
-print "Python"
-contour = [ [int(first_point[0]), int(first_point[1])] ]
-contour_fine = [list(np.asfarray(c)) for c in contour]
-for i in range(n):
-	next_point_fine, next_point_px = next_point(image, contour, center, plot = False, verbose = False, debug = False, slope_window = 4, horizontal_window = 5, chirality = chirality)
-	contour.append(next_point_px)
-	contour_fine.append(next_point_fine)
-print contour
-print contour_fine
+p_px, p_f = get_contour(image, first_point, center, end_points = None, N = 1000, burn = 10, plot = False, verbose = False, debug = False, slope_window = 4, horizontal_window = 5, adjust_edge = False)
+#print c_px
 
-exit()
-
-
-#c = get_contour(image, first_point, center, end_points = None, N = 1000, burn = 10, plot = False, verbose = False, debug = False, slope_window = 4, horizontal_window = 5, adjust_edge = False)
-
-
-#plt.plot(*c.T, c='r')
-#plt.imshow(image)
-#plt.show()
