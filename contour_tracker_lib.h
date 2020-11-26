@@ -401,6 +401,7 @@ namespace ct
 		bool good_candidate = false;
 		while(!good_candidate)
 		{
+			//printf("method = %d\n", method);
 			if (method == 1)
 			{
 				//First method: Round
@@ -425,11 +426,13 @@ namespace ct
 			bool test2 = true;
 			bool test3 = true;
 
+			//test1
 			for (int i = 1; i <= iter_max; i++)
 			{
 
 				if((contour[2*(contour_i - i)] == next_point_px[0]) && (contour[2*(contour_i - i) + 1] == next_point_px[1]))
 				{
+				//	printf("doubled-back, contour_i = %d, i = %d\n", contour_i, i);
 					test1 = false;
 					break;
 				}
@@ -486,13 +489,34 @@ namespace ct
 				return NULL;
 			}
 
-			next_point(ct_st->contour_px + 2*i, ct_st->contour_fine + 2*i, ct_st->im_array, ct_st->rows, ct_st->cols, ct_st->contour_px, i, *(ct_st->center), ct_st->horizontal_window, ct_st->slope_window, ct_st->chirality);
+			if(next_point(ct_st->contour_px + 2*i, ct_st->contour_fine + 2*i, ct_st->im_array, ct_st->rows, ct_st->cols, ct_st->contour_px, i, *(ct_st->center), ct_st->horizontal_window, ct_st->slope_window, ct_st->chirality) == -1)
+			{
+				ct_st->max_i = -1;
+				ct_st->done = 1;
+				return NULL;
+			}
 			/*
 			printf("%f\t%f\n", ct_st->contour_fine[2*i], ct_st->contour_fine[2*i + 1]);
 			printf("%d\t%d\n", ct_st->contour_px[2*i], ct_st->contour_px[2*i + 1]);
 			printf("\n");
 			*/
 
+			/*
+			//Check whether the next px point is somewhere within the beginning, ignoring the burnt bit
+			if (i > ct_st->burn)
+			{
+				for (int j = ct_st->burn; j < i; j++)
+				{
+					if ((ct_st->contour_px[2*i] == ct_st->contour_px[2*j]) && (ct_st->contour_px[2*i + 1] == ct_st->contour_px[2*j + 1]))
+					{
+						printf("Loop closed at i = %d\n", i);
+						ct_st->max_i = i;
+						ct_st->done = 1;
+						return NULL;
+					}
+				}
+			}
+			*/
 
 			//Check whether the next px point is somewhere within the beginning, ignoring the burnt bit
 			if (i > ct_st->burn)
@@ -502,12 +526,14 @@ namespace ct
 					if ((ct_st->contour_px[2*i] == ct_st->contour_px[2*j]) && (ct_st->contour_px[2*i + 1] == ct_st->contour_px[2*j + 1]))
 					{
 						//printf("Loop closed at i = %d\n", i);
+						//printf("j = %d\n", j);
 						ct_st->max_i = i;
 						ct_st->done = 1;
 						return NULL;
 					}
 				}
 			}
+
 			i++;
 		}
 	}
