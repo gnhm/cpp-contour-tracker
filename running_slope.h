@@ -52,6 +52,7 @@ void running_slope(double *m_l, double *b_l, double *x, double *y, int n, int wi
 
 void get_maximum_slope(double *slope_intercept, double *x, double *y, int n, int window, int orientation)
 {
+//	printf("Start max_slope\n");
 	double m_l[n - window];
 	double b_l[n - window];
 	running_slope(m_l, b_l, x, y, n, window);
@@ -68,6 +69,7 @@ void get_maximum_slope(double *slope_intercept, double *x, double *y, int n, int
 	}
 	slope_intercept[0] = m_l[i_max];
 	slope_intercept[1] = b_l[i_max];
+//	printf("End max_slope\n");
 }
 
 void get_maximum_slope_and_running(double *slope_intercept, double *m_l, double *b_l, double *x, double *y, int n, int window, int orientation)

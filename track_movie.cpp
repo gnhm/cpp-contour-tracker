@@ -13,7 +13,6 @@
 
 int main(int argc, char **argv)
 {
-
 	char *moviefile = argv[1];
 
 	if(VERBOSE)
@@ -109,28 +108,6 @@ int main(int argc, char **argv)
 		//Uncommenting leads to seg fault
 		for (int j = 0; j < SAMPLE; j++)
 		{
-			//printf("%d\n", j);
-			/*
-			ct_st.position_vector->x = old_contour[2*j]; 
-			ct_st.position_vector->y = old_contour[2*j + 1]; 
-			ct_st.contour_px[0] = (int) ct_st.position_vector->x;
-			ct_st.contour_px[1] = (int) ct_st.position_vector->y;
-			ct_st.contour_fine[0] = (double) ct_st.contour_px[0];
-			ct_st.contour_fine[1] = (double) ct_st.contour_px[1];
-			*/
-
-			/*
-			if (i == 0)
-			{
-				ct_st.position_vector->x = 75.; 
-				ct_st.position_vector->y = 113.; 
-			}
-			else
-			{
-				ct_st.position_vector->x = old_contour[2*j]; 
-				ct_st.position_vector->y = old_contour[2*j + 1]; 
-			}
-			*/
 			ct_st.position_vector->x = old_contour[2*j]; 
 			ct_st.position_vector->y = old_contour[2*j + 1]; 
 			ct_st.contour_px[0] = (int) ct_st.position_vector->x;

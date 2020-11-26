@@ -183,9 +183,6 @@ namespace ct
 					coordinates_width = end_y - start_y;
 					for (int i = 0; i < coordinates_width; i++)
 					{
-					//	full_profile[i*3] = start_x - i;
-					//	full_profile[i*3 + 1] = i + start_y;
-					//	full_profile[i*3 + 2] = image[start_x - i + (i + start_y)*rows];
 						full_profile[i] = start_x - i;
 						full_profile[i + coordinates_width] = i + start_y;
 						full_profile[i + 2*coordinates_width] = image[start_x - i + (i + start_y)*rows];
@@ -197,28 +194,22 @@ namespace ct
 		return -1;
 	}
 
-	void max_slope(double *bar_point_v_slope, double *image, int rows, int cols, Vector c, axes axis, Vector center, int horizontal_window, int slope_window)
+	int max_slope(double *bar_point_v_slope, double *image, int rows, int cols, Vector c, axes axis, Vector center, int horizontal_window, int slope_window)
 	{
 		//TODO Heap or stack is better?
 		//double *full_profile = (double*) malloc(sizeof(double)*(2*horizontal_window + 1)*3);
 		double full_profile[(2*horizontal_window + 1)*3];
 
 		int coordinates_width = profile(image, rows, cols, full_profile, c, axis, horizontal_window);
-		int orientation = unit_vectors[axis].x*(center.x - c.x) + unit_vectors[axis].y*(center.y - c.y) < 0 ? -1 : 1;
-//		Vector unit_vector(unit_vectors[axis].x*orientation, unit_vectors[axis].y*orientation);
-
-		/*
-		for (int j = 0; j < 3; j++)
+		if(coordinates_width == -1)
 		{
-			for (int i = 0; i < coordinates_width; i++)
-			{
-				printf("%f\t", full_profile[j*coordinates_width + i]);
-			}
-			printf("\n");
+			return -1;
 		}
-		*/
+		int orientation = unit_vectors[axis].x*(center.x - c.x) + unit_vectors[axis].y*(center.y - c.y) < 0 ? -1 : 1;
 
 		double slope_intercept[2];
+		//printf("c = (%f, %f)\n", c.x, c.y);
+		//printf("axis = %d\n", axis);
 
 		//TODO Finding the mean. This is slow, since we've already gone through the profile.
 		double p = 0;
@@ -358,7 +349,10 @@ namespace ct
 			bar_point_v_slope[0] = 0;
 			bar_point_v_slope[1] = 0;
 			bar_point_v_slope[2] = 0;
-			max_slope(bar_point_v_slope, image, rows, cols, candidate, ax, center, horizontal_window, slope_window);
+			if(max_slope(bar_point_v_slope, image, rows, cols, candidate, ax, center, horizontal_window, slope_window) == -1)
+			{
+				return -1;
+			}
 
 			numerator_x += bar_point_v_slope[0]*std::abs(bar_point_v_slope[2]);
 			numerator_y += bar_point_v_slope[1]*std::abs(bar_point_v_slope[2]);
@@ -452,9 +446,6 @@ namespace ct
 				method++;
 			}
 		}
-
-		
-
 	}
 
 	struct ContourStruct
