@@ -74,11 +74,8 @@ int main(int argc, char **argv)
 		exit( EXIT_FAILURE );
 	}
         fseek(file, 0, SEEK_SET);
-//	get_next_frame(file, &frame);
-//	fseek(file, 0, SEEK_SET);
 
 	while(((offset = get_next_frame(file, &frame)) != -1) && i < I_MAX)
-	//while(((offset = get_frame(file, &frame, 100524*i )) != -1) && i < I_MAX)
 	{
 		if (i == 0)
 		{
@@ -88,7 +85,7 @@ int main(int argc, char **argv)
 			ct_st.im_array = (double*) malloc(sizeof(double)*frame.size_x*frame.size_y);
 
 			//load the seed contour (not all. just a subset of size SAMPLE). Write to old_contour (why?). Get the contour_center.
-			/*
+
 			load_contour(contour_filename, &cs);
 			for (int j = 0; j < SAMPLE; j++)
 			{
@@ -98,11 +95,10 @@ int main(int argc, char **argv)
 			contour_center(&cs, new_center);
 			ct_st.center->x = new_center[0];
 			ct_st.center->y = new_center[1];
-			*/
 		
 			//For testing purposes
-			ct_st.center->x = 112.;
-			ct_st.center->y = 112.;
+			//ct_st.center->x = 112.;
+			//ct_st.center->y = 112.;
 
 		}
 
@@ -123,6 +119,7 @@ int main(int argc, char **argv)
 			ct_st.contour_fine[1] = (double) ct_st.contour_px[1];
 			*/
 
+			/*
 			if (i == 0)
 			{
 				ct_st.position_vector->x = 75.; 
@@ -133,6 +130,9 @@ int main(int argc, char **argv)
 				ct_st.position_vector->x = old_contour[2*j]; 
 				ct_st.position_vector->y = old_contour[2*j + 1]; 
 			}
+			*/
+			ct_st.position_vector->x = old_contour[2*j]; 
+			ct_st.position_vector->y = old_contour[2*j + 1]; 
 			ct_st.contour_px[0] = (int) ct_st.position_vector->x;
 			ct_st.contour_px[1] = (int) ct_st.position_vector->y;
 			ct_st.contour_fine[0] = (double) ct_st.contour_px[0];
@@ -141,25 +141,11 @@ int main(int argc, char **argv)
 			ct_st.done = 0;
 			ct_st.max_i = 0;
 			ct::get_contour(&ct_st);
-			//printf("max_i = %d\n", ct_st.max_i);
 			if (ct_st.max_i != -1)
 			{
 				break;
 			}
 		}
-
-		/*
-		ct_st.position_vector->x = 75.; 
-		ct_st.position_vector->y = 113.; 
-		ct_st.contour_px[0] = (int) ct_st.position_vector->x;
-		ct_st.contour_px[1] = (int) ct_st.position_vector->y;
-		ct_st.contour_fine[0] = (double) ct_st.contour_px[0];
-		ct_st.contour_fine[1] = (double) ct_st.contour_px[1];
-		ct_st.max_i = 0;
-		ct_st.done = 0;
-
-		ct::get_contour(&ct_st);
-		*/
 
 		if (ct_st.max_i == -1) //Bad frame
 		{
@@ -196,17 +182,7 @@ int main(int argc, char **argv)
 			characters = (int) ((i == 0) ? 1 : (log10(i) + 1));
 		}
 
-//		printf("\n");
-
 		i++;
-
-		/*
-		for (int k = ct_st.burn; k < ct_st.max_i + 1; k++)
-		{
-			printf("%f\t%f\n", ct_st.contour_fine[2*k], ct_st.contour_fine[2*k + 1]);
-		}
-		printf("\n");
-		*/
 
 	}
 
