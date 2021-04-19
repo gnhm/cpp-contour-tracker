@@ -8,7 +8,7 @@ m = Movie(moviefile)
 image = m.get_frame(0)
 
 first_point = np.asfarray([75., 113.])
-center = np.asfarray([122., 112.])
+center = np.asfarray([112., 112.])
 chirality = 1
 horizontal_window = 5
 slope_window = 4
@@ -28,12 +28,9 @@ args.append("{:d}".format(n+1))
 
 print "C:"
 cc =  subprocess.check_output(['./get_contour'] + args)
-c_fine = np.asfarray(map(lambda x: x.split("\t"), filter(lambda x: bool(x), cc.split("\n")))[:-1:2])
-c_px = np.asarray(map(lambda x: x.split("\t"), filter(lambda x: bool(x), cc.split("\n")))[1::2], dtype = 'int')
-i_max = int(filter(lambda x: bool(x), cc.split("\n"))[-1].split(" = ")[-1])
-
-
+print cc
+c_f = np.asfarray(map(lambda x: x.split("\t"), cc.split("\n")[:-1]))
 p_px, p_f = get_contour(image, first_point, center, end_points = None, N = 1000, burn = 10, plot = False, verbose = False, debug = False, slope_window = 4, horizontal_window = 5, adjust_edge = False)
-
-print np.mean(c_fine[10:] - p_f)
-
+print len(c_f)
+print len(p_f)
+#print np.mean(c_fine - p_f)

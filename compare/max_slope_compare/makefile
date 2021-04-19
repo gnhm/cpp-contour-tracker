@@ -1,2 +1,2 @@
-all: max_profile.cpp
-	g++ -std=c++11 max_profile.cpp -o max_profile
+all: max_slope.cpp
+	g++ -std=c++11 max_slope.cpp -o max_slope

@@ -14,7 +14,9 @@ int main(int argc, char **argv)
         }
 
 	camera_frame_struct frame;
-	get_frame(file, &frame, 0);
+	//get_frame(file, &frame, 0);
+	long offset = atol(argv[2]);
+	get_frame(file, &frame, offset);
 	double *im_array = (double*) malloc(sizeof(double)*frame.size_x*frame.size_y);
 	image_array(&frame, im_array);
 	for (int i = 0; i < frame.size_y; i++)
@@ -25,6 +27,7 @@ int main(int argc, char **argv)
 		}
 		printf("\n");
 	}
+	
 	free(im_array);
 	return 0;
 }
