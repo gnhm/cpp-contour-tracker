@@ -1,6 +1,5 @@
 #include <cmath>
 #include <math.h>
-#include"contour_tracker_lib.h"
 
 #define NM_PER_PX 97.6
 
