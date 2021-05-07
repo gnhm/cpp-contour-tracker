@@ -466,13 +466,14 @@ namespace ct
 		int done;
 	};
 
+	//TODO There is something wrong with this function. I believe that it is related to not return NULL.
 	void *get_contour(struct ContourStruct* ct_st)
 	{
-		//printf("%f\t%f\n", ct_st->contour_fine[0], ct_st->contour_fine[1]);
-		//printf("%d\t%d\n", ct_st->contour_px[0], ct_st->contour_px[1]);
+		printf("Starting get_contour\n");
 		int i = 1;
 		while (ct_st->done != 1)
 		{
+			printf("i = %d\n", i);
 			if (i == ct_st->max)
 			{
 				ct_st->max_i = -1;
@@ -486,28 +487,6 @@ namespace ct
 				ct_st->done = 1;
 				return NULL;
 			}
-			/*
-			printf("%f\t%f\n", ct_st->contour_fine[2*i], ct_st->contour_fine[2*i + 1]);
-			printf("%d\t%d\n", ct_st->contour_px[2*i], ct_st->contour_px[2*i + 1]);
-			printf("\n");
-			*/
-
-			/*
-			//Check whether the next px point is somewhere within the beginning, ignoring the burnt bit
-			if (i > ct_st->burn)
-			{
-				for (int j = ct_st->burn; j < i; j++)
-				{
-					if ((ct_st->contour_px[2*i] == ct_st->contour_px[2*j]) && (ct_st->contour_px[2*i + 1] == ct_st->contour_px[2*j + 1]))
-					{
-						printf("Loop closed at i = %d\n", i);
-						ct_st->max_i = i;
-						ct_st->done = 1;
-						return NULL;
-					}
-				}
-			}
-			*/
 
 			//Check whether the next px point is somewhere within the beginning, ignoring the burnt bit
 			if (i > ct_st->burn)
@@ -516,8 +495,6 @@ namespace ct
 				{
 					if ((ct_st->contour_px[2*i] == ct_st->contour_px[2*j]) && (ct_st->contour_px[2*i + 1] == ct_st->contour_px[2*j + 1]))
 					{
-						//printf("Loop closed at i = %d\n", i);
-						//printf("j = %d\n", j);
 						ct_st->max_i = i;
 						ct_st->done = 1;
 						return NULL;
@@ -528,6 +505,36 @@ namespace ct
 			i++;
 		}
 	}
+
+	void *get_contour_old_version(struct ContourStruct* ct_st)
+        {
+                ct_st->max_i = -1;
+
+                for (int i = 1; i < ct_st->max; i++)
+                {
+                        ct::next_point(ct_st->contour_px + 2*i, ct_st->contour_fine + 2*i, ct_st->im_array, ct_st->rows, ct_st->cols, ct_st->contour_px, i, *(ct_st->center), ct_st->horizontal_window, ct_st->slope_window, ct_st->chirality);
+                        if (i > ct_st->burn)
+                        {
+                                if (ct_st->contour_px[2*i] == ct_st->contour_px[2*ct_st->burn] && ct_st->contour_px[2*i + 1] == ct_st->contour_px[2*ct_st->burn + 1])
+                                {
+                                        ct_st->max_i = i;
+                                        break;
+                                }
+                        }
+                }
+
+                if (ct_st->max_i != -1)
+                {
+                        ct_st->contour_fine += (ct_st->burn - 1)*2;
+                        ct_st->contour_px += (ct_st->burn - 1)*2;
+                        ct_st->max_i -= ct_st->burn - 1;
+                }
+
+                ct_st->done = 1;
+
+                return NULL;
+        }
+
 
 	void *v_get_contour(void* ct_st)
 	{
