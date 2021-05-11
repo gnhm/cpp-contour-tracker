@@ -1,7 +1,7 @@
 #include <cmath>
 #include <math.h>
 #include <assert.h>
-#include "running_slope.h"
+#include "running_slope-trackmovie.h"
 
 #define VEC_X 0;
 #define VEC_Y 1;
