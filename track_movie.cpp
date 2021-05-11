@@ -3,7 +3,7 @@
 #include "temika_header.h"
 #include "get_movie_frame.h"
 #include <string.h>
-#include "contour_tracker_lib.h"
+#include "contour_tracker-trackmovie_lib.h"
 #include "contour_analyzer_lib.h"
 
 #define SAMPLE 10
