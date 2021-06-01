@@ -1,9 +1,10 @@
 #!/bin/bash
 
+SUB='bad'
+SUB2='screen'
+
 for d in $1/auto_flickering*;
-	do for m in $d/cell_*.movie;
-		do echo $m;
-		#/home/gn299/cpp-contour-tracker/track_movie $m;
-		$HOME/cpp-contour-tracker/track_movie $m;
+	do for m in $d/*.movie;
+		do if [[ ($m != *"$SUB"*) && ($m != *"$SUB2"*) ]]; then $HOME/cpp-contour-tracker/track_movie $m; fi
 done;
 done;
