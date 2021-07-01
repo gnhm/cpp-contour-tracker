@@ -29,14 +29,14 @@ int main(int argc, char **argv)
 	const char *movie_ext = ".movie";
 
 	//Makes the seed contour_filename based on movie filename
-	char contour_filename[100];
+	char contour_filename[1000];
 	strcpy(contour_filename, moviefile);
 	char *p = strstr(contour_filename, movie_ext);
 	*p = '\0';
 	strcat(contour_filename, "_contour.txt");
 
 	//Makes the full contour_filename based on movie filename
-	char contour_filename_new[100];
+	char contour_filename_new[1000];
 	strcpy(contour_filename_new, moviefile);
 	char *p_new = strstr(contour_filename_new, movie_ext);
 	*p_new = '\0';
