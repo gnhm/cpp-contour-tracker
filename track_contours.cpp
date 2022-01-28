@@ -1,16 +1,18 @@
 //g++ -std=c++11 test_movie.cpp -o test_movie
+/* does the above mean we are still working with c++11? When we're up to c++20 stable now? */
 
-#include"temika_header.h"
-#include"get_movie_frame.h"
-#include<string.h>
+#include"temika_header.h" // hoping this won't be needed
+#include"get_movie_frame.h" // no need to compile headers
+#include<string.h> 
 #include"contour_analyzer_lib.h"
 
 #define SAMPLE 10
 
 #define I_MAX 100000
 
-int track_contour(char *moviefile)
+int track_contour(char *moviefile) // this is a function which (I think) returns an integer given the moviefile as an argument
 {
+	// what does this bit do, seems like a lot of initialisation:
 	struct camera_frame_struct frame;
 	long offset = 0;
 	int i = 0;
@@ -21,7 +23,8 @@ int track_contour(char *moviefile)
 
 	double new_center[2];
 	double new_position[2];
-
+	
+	// seems to be the source of the first error... I don't know much about structures
 	struct Contour cs;
 
 	struct ct::ContourStruct ct_st;
@@ -31,7 +34,7 @@ int track_contour(char *moviefile)
 	ct_st.contour_fine = (double*) malloc(2*ct_st.max*sizeof(double));
 	ct_st.contour_px = (int*) malloc(2*ct_st.max*sizeof(int));
 
-	ct::Vector position_vector(-1,-1);
+	ct::Vector position_vector(-1,-1); // using the namespace thing, cf std::cout in older scripts
 	ct::Vector center(-1, -1);
 	ct_st.position_vector = &position_vector;
 	ct_st.center = &center;
@@ -44,20 +47,21 @@ int track_contour(char *moviefile)
 	int old_max_i;
 	double old_contour[2*SAMPLE];
 
-	strcpy(contour_filename, moviefile);
-	char *p = strstr(contour_filename, movie_ext);
+	strcpy(contour_filename, moviefile); // copy the strings?
+	char *p = strstr(contour_filename, movie_ext); // WHAT DOES THE STAR MEAN
 	*p = '\0';
 	strcat(contour_filename, "_contour.txt");
 
 	strcpy(contour_filename_new, moviefile);
 	char *p_new = strstr(contour_filename_new, movie_ext);
 	*p_new = '\0';
-	strcat(contour_filename_new, "_contour_full.txt");
-
+	strcat(contour_filename_new, "_contour_full.txt"); // concatenate these strings, as in the python file
+	
+	// initialising some integers
 	int bad_frames = 0;
-
 	int characters = 0;
-
+	
+	// WHAT IS THIS
 	FILE *file;
 	if ( !( file = fopen(moviefile, "rb" ) ) )
 	{
@@ -156,6 +160,9 @@ int track_contour(char *moviefile)
 	return 0;
 }
 
+
+
+// this is the actual active code, essentially just repeating the above function loads (argc times, whatever that is)
 int main(int argc, char **argv)
 {
 	for (int i = 1; i < argc; i++)
