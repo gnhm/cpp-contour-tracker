@@ -40,7 +40,7 @@ Try the makefile.
 #include<string.h> 
 #include"contour_analyzer_lib.h" 
 // maybe it was meant to be this one!!
-#include"contour_tracker_lib.h"
+//#include"contour_tracker_lib.h"
 
 #define SAMPLE 10
 
