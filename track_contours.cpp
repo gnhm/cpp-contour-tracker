@@ -106,7 +106,7 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 		exit( EXIT_FAILURE );
 	}
 
-	while(((offset = get_frame(file, &frame, offset)) != -1) && i < I_MAX)
+	while(((offset = get_frame(file, &frame)) != -1) && i < I_MAX)
 	{
 		if (i == 0)
 		{ // this whole statement cannot be completed. Work out what it does and if it's necessary.
