@@ -1,10 +1,19 @@
+/* ---- DESCRIPTION OF THE SCRIPT ----
+
+*coming soon*
+
+
+-------------------------------------- */
+
+
+
 //g++ -std=c++11 test_movie.cpp -o test_movie
 /* does the above mean we are still working with c++11? When we're up to c++20 stable now? */
 
 #include"temika_header.h" // hoping this won't be needed
 #include"get_movie_frame.h" // no need to compile headers
 #include<string.h> 
-#include"contour_analyzer_lib.h"
+#include"contour_analyzer_lib.h" // not sure if the function defined in this header is actually used here
 
 #define SAMPLE 10
 
