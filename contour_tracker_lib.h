@@ -1,7 +1,7 @@
 #include <cmath>
 #include <math.h>
 #include <assert.h>
-#include "running_slope.h"
+#include "running_slope-trackmovie.h"
 
 #define VEC_X 0;
 #define VEC_Y 1;
@@ -231,26 +231,26 @@ namespace ct
 		switch(axis)
 		{
 			case x:
-				get_maximum_slope(slope_intercept, full_profile, full_profile + 2*coordinates_width, coordinates_width, slope_window, orientation);
+				get_maximum_slope_broken(slope_intercept, full_profile, full_profile + 2*coordinates_width, coordinates_width, slope_window, orientation);
 				bar_point = (p - slope_intercept[1])/slope_intercept[0];
 				bar_point_v[0] = bar_point;
 				bar_point_v[1] = c.y;
 				break;
 			case y:
-				get_maximum_slope(slope_intercept, full_profile + coordinates_width, full_profile + 2*coordinates_width, coordinates_width, slope_window, orientation);
+				get_maximum_slope_broken(slope_intercept, full_profile + coordinates_width, full_profile + 2*coordinates_width, coordinates_width, slope_window, orientation);
 				bar_point = (p - slope_intercept[1])/slope_intercept[0];
 				bar_point_v[0] = c.x;
 				bar_point_v[1] = bar_point;
 				break;
 			case v:
-				get_maximum_slope(slope_intercept, full_profile, full_profile + 2*coordinates_width, coordinates_width, slope_window, orientation);
+				get_maximum_slope_broken(slope_intercept, full_profile, full_profile + 2*coordinates_width, coordinates_width, slope_window, orientation);
 				bar_point = (p - slope_intercept[1])/slope_intercept[0];
 				bar_point_v[0] = bar_point;
 				bar_point_v[1] = (bar_point - c.x) + c.y;
 				slope_intercept[0] /= SQRT2;
 				break;
 			case w:
-				get_maximum_slope(slope_intercept, full_profile + coordinates_width, full_profile + 2*coordinates_width, coordinates_width, slope_window, orientation);
+				get_maximum_slope_broken(slope_intercept, full_profile + coordinates_width, full_profile + 2*coordinates_width, coordinates_width, slope_window, orientation);
 				bar_point = (p - slope_intercept[1])/slope_intercept[0];
 				bar_point_v[1] = bar_point;
 				bar_point_v[0] = c.y - bar_point + c.x;
