@@ -40,7 +40,7 @@ Try the makefile.
 #include<string.h> 
 #include"contour_analyzer-trackmovie_lib.h" 
 // maybe it was meant to be this one!!
-#include"contour_tracker_lib.h"
+//#include"contour_tracker_lib.h" // commented as maybe indirectly including the file twice causes problems
 
 #define SAMPLE 10
 
