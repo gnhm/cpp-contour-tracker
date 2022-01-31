@@ -544,3 +544,5 @@ double analyze_contour(struct Contour* cs, double* cc, int min_mode = 0, int max
 //	printf("\n");
 //	printf("Total angle = %f\n", total_angle);
 }
+
+**************/
