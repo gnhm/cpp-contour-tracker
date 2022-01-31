@@ -17,3 +17,10 @@ Contour_analyzer_lib only has one function: `void analyze_contour(double *c, int
 
 
 The `makefile` can be executed with the `make` command, and currently seems to only compile track_movie (successfully!). Running this executable for the sample movie then always returns `Segmentation fault (core dumped)` :(
+
+
+
+Spoke to Guil just before lunch:
+- `track_contours` is for doing it in real time from temika
+- track_movie already compiles, and goes from an initial contour (see `_contour.txt` files which are generated using that initial if statement)
+- the contour struct is in the -trackmovie versions of the header although it is really very small! 
