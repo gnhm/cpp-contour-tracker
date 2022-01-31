@@ -348,6 +348,7 @@ namespace ct
 		int chirality;
 		int max_i;
 		int done;
+		int start; // added
 	};
 
 	void *get_contour(struct ContourStruct* ct_st)
