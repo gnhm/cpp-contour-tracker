@@ -61,10 +61,10 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 	double new_position[2];
 	
 	// seems to be the source of the first error... it should be defined elsewhere, and the "cs" is just an instance of that data type, just like
-	// declaring any other variable
+	// declaring any other variable. The problem is, it 
 	struct Contour cs;
 
-	struct ct::ContourStruct ct_st; // declaring any other variable, of type struct ct::ContourStruct (defined elswhere?)
+	struct ct::ContourStruct ct_st; // declaring any other variable, of type struct ct::ContourStruct #####(contour_tracker_lib.h)
 	ct_st.max = 1000;
 	ct_st.burn = 20;
 	ct_st.chirality = 1;
@@ -85,7 +85,7 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 	double old_contour[2*SAMPLE];
 
 	strcpy(contour_filename, moviefile); // copy the strings?
-	char *p = strstr(contour_filename, movie_ext); // WHAT DOES THE STAR MEAN
+	char *p = strstr(contour_filename, movie_ext);
 	*p = '\0';
 	strcat(contour_filename, "_contour.txt");
 
@@ -109,14 +109,22 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 	while(((offset = get_frame(file, &frame, offset)) != -1) && i < I_MAX)
 	{
 		if (i == 0)
-		{
+		{ // this whole statement cannot be completed. Work out what it does and if it's necessary.
+			/*
+			Only seems to happen at the start, so I guess it it some sort of initialisation.
+			
+			
+			*/
+			
+			
+			
 			//allocate the image array based on first frame
 			ct_st.im_array = (double*) malloc(sizeof(double)*frame.size_x*frame.size_y);
 
 			ct_st.rows = frame.size_x;
 			ct_st.cols = frame.size_y;
 
-			//load the first contour
+			//load the first contour - this function, along with the structure that "cs" is an instance of, are not defined in this repo
 			load_contour(contour_filename, &cs);
 			for (int j = 0; j < SAMPLE; j++)
 			{
@@ -130,6 +138,8 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 
 		image_array(&frame, ct_st.im_array);
 
+		
+		
 		//No way around it. Need to save old contour points for sampling elsewhere.
 		for (int j = 0; j < SAMPLE; j++)
 		{
