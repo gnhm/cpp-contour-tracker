@@ -38,7 +38,7 @@ Try the makefile.
 #include"temika_header.h" // hoping this won't be needed
 #include"get_movie_frame.h" // no need to compile headers
 #include<string.h> 
-#include"contour_analyzer-trackmovie_lib.h" 
+#include"contour_analyzer_lib.h" 
 // maybe it was meant to be this one!!
 #include"contour_tracker_lib.h"
 
