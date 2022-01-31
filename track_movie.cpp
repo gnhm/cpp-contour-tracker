@@ -7,9 +7,7 @@
 #include "contour_analyzer-trackmovie_lib.h"
 
 #define SAMPLE 10
-
 #define I_MAX 10000
-
 #define VERBOSE 1
 
 int main(int argc, char **argv)
@@ -21,7 +19,7 @@ int main(int argc, char **argv)
 		printf("Tracking %s\n", moviefile);
 	}
 
-	struct camera_frame_struct frame; //Temika frame struct
+	struct camera_frame_struct frame; //Temika frame struct - maybe worth looking into what this does (basically a way of reading movies?)
 	long offset = 0; //Keep track of movie position
 	int i = 0; //Frames opened so far
 	int bad_frames = 0; //Frames which were untracked
@@ -42,7 +40,7 @@ int main(int argc, char **argv)
 	*p_new = '\0';
 	strcat(contour_filename_new, "_contour_full.txt");
 
-	//Initialize the contour tracking struct
+	//Initialize the contour tracking struct, from the struct definition in tracker-trackmovie_lib.h
 	struct ct::ContourStruct ct_st;
 	ct_st.max = 1000;
 	ct_st.burn = 10;
@@ -56,12 +54,12 @@ int main(int argc, char **argv)
 	ct_st.horizontal_window = 5;
 	ct_st.slope_window = 4;
 
-	//This, I hope, can be gotten rid off
+	//This, I hope, can be gotten rid off - may rely on the first contour already being fed in
 	double old_contour[2*SAMPLE];
 
 	double new_center[2];
 	double new_position[2];
-	struct Contour cs;
+	struct Contour cs; // from the struct defined in analyzer-trackmovie_lib.h
 
 	//For fancy printing
 	int characters = 0;
@@ -73,11 +71,15 @@ int main(int argc, char **argv)
 		printf( "Couldn't open movie file.\n" );
 		exit( EXIT_FAILURE );
 	}
+	
+	// proceed if the files open successfully
         fseek(file, 0, SEEK_SET);
-
-	while(((offset = get_next_frame(file, &frame)) != -1) && i < I_MAX)
+	
+	
+	while(((offset = get_next_frame(file, &frame)) != -1) && i < I_MAX) // the get_next_frame takes some apparently undefined struct as it second arg;
+		// work out what frame means here (if it isn't obvious)
 	{
-		if (i == 0)
+		if (i == 0) // this is the important section, see equivalent on track_contours
 		{
 			//allocate the image array based on first frame. This will break if frames can change (easy fix, but it never happens)
 			ct_st.rows = frame.size_x;
@@ -86,7 +88,7 @@ int main(int argc, char **argv)
 
 			//load the seed contour (not all. just a subset of size SAMPLE). Write to old_contour (why?). Get the contour_center.
 
-			load_contour(contour_filename, &cs);
+			load_contour(contour_filename, &cs); // working on this atm
 			for (int j = 0; j < SAMPLE; j++)
 			{
 				old_contour[2*j] = cs.contour[2*j*cs.max_i/SAMPLE];
