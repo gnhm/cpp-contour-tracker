@@ -3,6 +3,29 @@
 *coming soon*
 
 
+key: #####(a.h) = function defined in header a
+
+a bit on char vs string from sstackoverflow:
+# A string is a class that contains a char array, but automatically manages it for you. 
+# Most string implementations have a built-in array of 16 characters (so short strings don't fragment the heap) and use the heap for longer strings.
+
+
+the asterisk (*) seems to be used for:
+# declaring pointers (where "reference variables" are denoted &x, which seems to be essentially another way of using the variable, although & can also
+  be used to retrieve the "memory address" of the variable. A pointer stores the memory address as the value of the variable. The pointer variable type 
+  has to be the same as the type of variable it is pointing to.
+  This can also be done with any combo: 
+  	string* mystring; // Preferred
+	string *mystring;
+	string * mystring;)
+# dereferencing pointers (if a variable is a pointer, say string* ptr = &food, then you can get the actual value of the variable using *ptr.
+	Maybe this is why it's nice to keep conventions wrt declaring and deferencing pointers. 
+	NB modifying pointers will change the value of the original variable.)
+# multiplication (of course)
+
+
+NOTE: when doing stuff locally use g++ over gcc as it does some linking by default!!!
+
 -------------------------------------- */
 
 
@@ -19,18 +42,18 @@
 
 #define I_MAX 100000
 
-int track_contour(char *moviefile) // this is a function which (I think) returns an integer given the moviefile as an argument
+int track_contour(char* moviefile) // this is a function which (I think) returns an integer given the moviefile memory address as an argument
 {
 	// what does this bit do, seems like a lot of initialisation:
 	struct camera_frame_struct frame;
 	long offset = 0;
 	int i = 0;
-	double *im_array;
-	char contour_filename[100];
+	double* im_array; // declaring the pointer im_array
+	char contour_filename[100]; // this notation means the variable contour_filenme will have 100 elements (characters in this case)
 	char contour_filename_new[100];
-	const char *movie_ext = ".movie";
+	const char* movie_ext = ".movie"; // not sure what value this pointer will have; on testing with a simple code (std::cout<<movie_ext;) it gave ".movie"
 
-	double new_center[2];
+	double new_center[2]; // similarly here you will get an array of two doubles in this variable
 	double new_position[2];
 	
 	// seems to be the source of the first error... I don't know much about structures
