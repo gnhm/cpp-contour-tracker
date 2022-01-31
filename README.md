@@ -14,3 +14,6 @@ Good chance to get back into c++!
 Not sure (intuitively) what is the difference between track_contours and track_movie... surely the contours have to be tracked over a few frames? Unless the first one is setting up the (multiple for multiple modes) contours in a single frame...
 
 Contour_analyzer_lib only has one function: `void analyze_contour(double *c, int n)` and also has some TODOs at the beginning.
+
+
+The `makefile` can be executed with the `make` command, and currently seems to only compile track_movie (successfully!)
