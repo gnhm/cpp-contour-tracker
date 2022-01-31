@@ -39,6 +39,8 @@ Try the makefile.
 #include"get_movie_frame.h" // no need to compile headers
 #include<string.h> 
 #include"contour_analyzer_lib.h" // not sure if the function defined in this header is actually used here
+// maybe it was meant to be this one!!
+#include"contour_tracker_lib.h"
 
 #define SAMPLE 10
 
@@ -58,10 +60,11 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 	double new_center[2]; // similarly here you will get an array of two doubles in this variable
 	double new_position[2];
 	
-	// seems to be the source of the first error... I don't know much about structures
+	// seems to be the source of the first error... it should be defined elsewhere, and the "cs" is just an instance of that data type, just like
+	// declaring any other variable
 	struct Contour cs;
 
-	struct ct::ContourStruct ct_st;
+	struct ct::ContourStruct ct_st; // declaring any other variable, of type struct ct::ContourStruct (defined elswhere?)
 	ct_st.max = 1000;
 	ct_st.burn = 20;
 	ct_st.chirality = 1;
