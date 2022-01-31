@@ -26,6 +26,8 @@ the asterisk (*) seems to be used for:
 
 NOTE: when doing stuff locally use g++ over gcc as it does some linking by default!!!
 
+Try the makefile.
+
 -------------------------------------- */
 
 
