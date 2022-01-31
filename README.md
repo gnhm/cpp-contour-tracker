@@ -11,6 +11,9 @@ Will need to isolate modules from actual scripts that are running something, jus
 
 Good chance to get back into c++!
 
+
+31/1/22
+
 Not sure (intuitively) what is the difference between track_contours and track_movie... surely the contours have to be tracked over a few frames? Unless the first one is setting up the (multiple for multiple modes) contours in a single frame...
 
 Contour_analyzer_lib only has one function: `void analyze_contour(double *c, int n)` and also has some TODOs at the beginning.
@@ -24,3 +27,6 @@ Spoke to Guil just before lunch:
 - `track_contours` is for doing it in real time from temika
 - track_movie already compiles, and goes from an initial contour (see `_contour.txt` files which are generated using that initial if statement)
 - the contour struct is in the -trackmovie versions of the header although it is really very small! 
+
+Post-lunch update: everything is compiling, but when passing sample movie file as argument the core dumps. Will need first contour for `track_movie`, in the form 
+of a text file. Working on making that now (should just need a center and a point on the edge). Study the algorithm!
