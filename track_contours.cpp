@@ -136,18 +136,37 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 			}
 			//allocate the image array based on first frame
 			ct_st.im_array = (double*) malloc(sizeof(double)*frame.size_x*frame.size_y);
-
+			
+			
+			if (VERBOSE) {
+				printf("Allocated some memory [i==0 case]. \n");	
+			}
+			
 			ct_st.rows = frame.size_x;
 			ct_st.cols = frame.size_y;
 
 			//load the first contour - this function, along with the structure that "cs" is an instance of, are not defined in this repo
 			load_contour(contour_filename, &cs);
+			
+			if (VERBOSE) {
+				printf("Loaded contour [i==0 case]. \n");	
+			}
 			for (int j = 0; j < SAMPLE; j++)
 			{
 				old_contour[2*j] = cs.contour[2*j*cs.max_i/SAMPLE];
 				old_contour[2*j + 1] = cs.contour[2*j*cs.max_i/SAMPLE + 1];
 			}
+			
+			if (VERBOSE) {
+				printf("Done for loop [i==0 case]. \n");	
+			}
+			
 			contour_center(&cs, new_center);
+			
+			if (VERBOSE) {
+				printf("contour_centered() [i==0 case]. \n");	
+			}
+			
 			ct_st.center->x = new_center[0];
 			ct_st.center->y = new_center[1];
 		}
