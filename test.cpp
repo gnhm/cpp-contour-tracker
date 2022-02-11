@@ -2,9 +2,9 @@
 #include "get_movie_frame.h"
 
 
-int main (int argc, char** argv) {
+int main (int argc, char **argv) {
   
-  FILE moviefile = argv[1]
+  char* moviefile = argv[1]
   get_frame(moviefile, struct camera_frame_struct *temika_frame) // (FILE *moviefile, struct camera_frame_struct *temika_frame) 
   
   
