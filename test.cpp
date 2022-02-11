@@ -5,7 +5,8 @@
 int main (int argc, char **argv) {
   
   char* moviefile = argv[1];
-  get_frame(moviefile, struct camera_frame_struct *temika_frame) // (FILE *moviefile, struct camera_frame_struct *temika_frame) ;
+  struct camera_frame_struct *temika_frame;
+  get_frame(moviefile, *temika_frame) // (FILE *moviefile, struct camera_frame_struct *temika_frame) ;
   
   
   
