@@ -46,6 +46,8 @@ Try the makefile.
 
 #define I_MAX 100000
 
+#define VERBOSE 1
+
 int track_contour(char* moviefile) // this is a function which (I think) returns an integer given the moviefile memory address as an argument
 {
 	// what does this bit do, seems like a lot of initialisation:
@@ -63,7 +65,13 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 	// seems to be the source of the first error... it should be defined elsewhere, and the "cs" is just an instance of that data type, just like
 	// declaring any other variable. The problem is, it 
 	struct Contour cs;
-
+	
+	
+	if (VERBOSE) {
+		printf("Structures initialised");	
+	}
+	
+	
 	struct ct::ContourStruct ct_st; // declaring any other variable, of type struct ct::ContourStruct #####(contour_tracker_lib.h)
 	ct_st.max = 1000;
 	ct_st.burn = 20;
@@ -105,10 +113,14 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 		printf( "Couldn't open movie file.\n" );
 		exit( EXIT_FAILURE );
 	}
+	
+	if (VERBOSE) {
+		printf("FILE opened");	
+	}
 
 	while(((offset = get_frame(file, &frame)) != -1) && i < I_MAX)
 		// if we can pass something else in as "frame" which doesn't cause a segmentation fault, we're good. What this does can't be too hard.
-		// Where is get_frame() from?
+		// get_frame() from get_movie_frame.h
 	{
 		if (i == 0)
 		{ // this whole statement cannot be completed. Work out what it does and if it's necessary.
