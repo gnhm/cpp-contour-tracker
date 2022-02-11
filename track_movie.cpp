@@ -19,7 +19,7 @@ int main(int argc, char **argv)
 		printf("Tracking %s\n", moviefile);
 	}
 
-	struct camera_frame_struct frame; //Temika frame struct - maybe worth looking into what this does (basically a way of reading movies?)
+	struct camera_frame_struct frame; //Temika frame struct - I don't think my laptop is happy with it
 	long offset = 0; //Keep track of movie position
 	int i = 0; //Frames opened so far
 	int bad_frames = 0; //Frames which were untracked
