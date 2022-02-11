@@ -68,7 +68,7 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 	
 	
 	if (VERBOSE) {
-		printf("Structures initialised");	
+		printf("Structures initialised. \n");	
 	}
 	
 	
@@ -115,7 +115,7 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 	}
 	
 	if (VERBOSE) {
-		printf("FILE opened");	
+		printf("FILE opened. \n");	
 	}
 
 	while(((offset = get_frame(file, &frame)) != -1) && i < I_MAX)
@@ -131,7 +131,9 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 			*/
 			
 			
-			
+			if (VERBOSE) {
+				printf("i==0 case. \n");	
+			}
 			//allocate the image array based on first frame
 			ct_st.im_array = (double*) malloc(sizeof(double)*frame.size_x*frame.size_y);
 
@@ -149,9 +151,16 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 			ct_st.center->x = new_center[0];
 			ct_st.center->y = new_center[1];
 		}
-
+		
+		if (VERBOSE) {
+			printf("Finished i==0 case. \n");	
+		}
+	
 		image_array(&frame, ct_st.im_array);
-
+		
+		if (VERBOSE) {
+			printf("image_array() completed successfully. \n");	
+		}
 		
 		
 		//No way around it. Need to save old contour points for sampling elsewhere.
@@ -171,6 +180,10 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 				break;
 			}
 		}
+		
+		if (VERBOSE) {
+			printf("for loop completed. \n");	
+		}
 
 		if (ct_st.max_i == -1) //Bad frame
 		{
@@ -184,8 +197,17 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 				old_contour[2*j + 1] = ct_st.contour_fine[2*j*ct_st.max_i/SAMPLE + 1];
 			}
 		}
+		
+		if (VERBOSE) {
+			printf("about to save_contour(). \n");	
+		}
 		save_contour(contour_filename_new, ct_st); //Save everything
-
+		
+		if (VERBOSE) {
+			printf("contour_saved(). \n");	
+		}
+		
+		
 		//This is just to print stuff out
 		if (i == 0)
 		{
