@@ -23,6 +23,10 @@ int main(int argc, char **argv)
 	long offset = 0; //Keep track of movie position
 	int i = 0; //Frames opened so far
 	int bad_frames = 0; //Frames which were untracked
+	
+	if (VERBOSE) {
+		printf("Initialisation completed");
+	}
 
 	const char *movie_ext = ".movie";
 
@@ -32,6 +36,7 @@ int main(int argc, char **argv)
 	char *p = strstr(contour_filename, movie_ext);
 	*p = '\0';
 	strcat(contour_filename, "_contour.txt");
+	
 
 	//Makes the full contour_filename based on movie filename
 	char contour_filename_new[1000];
@@ -39,6 +44,10 @@ int main(int argc, char **argv)
 	char *p_new = strstr(contour_filename_new, movie_ext);
 	*p_new = '\0';
 	strcat(contour_filename_new, "_contour_full.txt");
+	
+	if (VERBOSE) {
+		printf("Filenames created");
+	}
 
 	//Initialize the contour tracking struct, from the struct definition in tracker-trackmovie_lib.h
 	struct ct::ContourStruct ct_st;
@@ -53,6 +62,10 @@ int main(int argc, char **argv)
 	ct_st.center = &center;
 	ct_st.horizontal_window = 5;
 	ct_st.slope_window = 4;
+	
+	if (VERBOSE) {
+		printf("Set up ContourStruct");
+	}
 
 	//This, I hope, can be gotten rid off - may rely on the first contour already being fed in
 	double old_contour[2*SAMPLE];
@@ -63,7 +76,11 @@ int main(int argc, char **argv)
 
 	//For fancy printing
 	int characters = 0;
-
+	
+	if (VERBOSE) {
+		printf("About to try opening the file:");
+	}
+	
 	//Try opening the file
 	FILE *file;
 	if ( !( file = fopen(moviefile, "rb" ) ) )
