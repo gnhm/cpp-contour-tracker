@@ -3,7 +3,7 @@
 *coming soon*
 
 
-key: #####(a.h) = function defined in header a
+key: #####(a.h) = function defined in header a    <-- [hardly used]
 
 a bit on char vs string from sstackoverflow:
 # A string is a class that contains a char array, but automatically manages it for you. 
@@ -145,7 +145,7 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 			ct_st.rows = frame.size_x;
 			ct_st.cols = frame.size_y;
 
-			//load the first contour - this function, along with the structure that "cs" is an instance of, are not defined in this repo
+			//load the first contour - in contour_analyzer_lib.h
 			load_contour(contour_filename, &cs);
 			
 			if (VERBOSE) {
