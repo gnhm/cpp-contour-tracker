@@ -141,7 +141,7 @@ added from -trackmovie version to have two separate dependencies
 
 struct Contour
 {
-        double contour; // should be double *contour;
+        double *contour; // should be double *contour; having some memory issues with this
         int max_i;
 };
 
