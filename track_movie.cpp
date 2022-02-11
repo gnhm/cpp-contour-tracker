@@ -75,12 +75,18 @@ int main(int argc, char **argv)
 	// proceed if the files open successfully
         fseek(file, 0, SEEK_SET);
 	
+	if (VERBOSE) {
+		printf("Getting to first while loop");
+	}
 	
 	while(((offset = get_next_frame(file, &frame)) != -1) && i < I_MAX) // the get_next_frame takes some apparently undefined struct as it second arg;
 		// work out what frame means here (if it isn't obvious)
 	{
 		if (i == 0) // this is the important section, see equivalent on track_contours
 		{
+			if (VERBOSE) {
+				printf("Starting if (i==0)");
+			}
 			//allocate the image array based on first frame. This will break if frames can change (easy fix, but it never happens)
 			ct_st.rows = frame.size_x;
 			ct_st.cols = frame.size_y;
@@ -126,7 +132,11 @@ int main(int argc, char **argv)
 				break;
 			}
 		}
-
+		
+		if (VERBOSE) {
+			printf("Finished for loop iteration");
+		}
+		
 		if (ct_st.max_i == -1) //Bad frame
 		{
 				bad_frames++;
