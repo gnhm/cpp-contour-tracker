@@ -107,6 +107,8 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 	}
 
 	while(((offset = get_frame(file, &frame)) != -1) && i < I_MAX)
+		// if we can pass something else in as "frame" which doesn't cause a segmentation fault, we're good. What this does can't be too hard.
+		// Where is get_frame() from?
 	{
 		if (i == 0)
 		{ // this whole statement cannot be completed. Work out what it does and if it's necessary.
