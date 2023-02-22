@@ -3,7 +3,7 @@
 *coming soon*
 
 
-key: #####(a.h) = function defined in header a
+key: #####(a.h) = function defined in header a    <-- [hardly used]
 
 a bit on char vs string from sstackoverflow:
 # A string is a class that contains a char array, but automatically manages it for you. 
@@ -46,6 +46,8 @@ Try the makefile.
 
 #define I_MAX 100000
 
+#define VERBOSE 1
+
 int track_contour(char* moviefile) // this is a function which (I think) returns an integer given the moviefile memory address as an argument
 {
 	// what does this bit do, seems like a lot of initialisation:
@@ -63,7 +65,13 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 	// seems to be the source of the first error... it should be defined elsewhere, and the "cs" is just an instance of that data type, just like
 	// declaring any other variable. The problem is, it 
 	struct Contour cs;
-
+	
+	
+	if (VERBOSE) {
+		printf("Structures initialised. \n");	
+	}
+	
+	
 	struct ct::ContourStruct ct_st; // declaring any other variable, of type struct ct::ContourStruct #####(contour_tracker_lib.h)
 	ct_st.max = 1000;
 	ct_st.burn = 20;
@@ -105,6 +113,10 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 		printf( "Couldn't open movie file.\n" );
 		exit( EXIT_FAILURE );
 	}
+	
+	if (VERBOSE) {
+		printf("FILE opened. \n");	
+	}
 
 	while(((offset = get_frame(file, &frame)) != -1) && i < I_MAX)
 	{
@@ -117,27 +129,55 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 			*/
 			
 			
-			
+			if (VERBOSE) {
+				printf("i==0 case. \n");	
+			}
 			//allocate the image array based on first frame
 			ct_st.im_array = (double*) malloc(sizeof(double)*frame.size_x*frame.size_y);
-
+			
+			
+			if (VERBOSE) {
+				printf("Allocated some memory [i==0 case]. \n");	
+			}
+			
 			ct_st.rows = frame.size_x;
 			ct_st.cols = frame.size_y;
 
-			//load the first contour - this function, along with the structure that "cs" is an instance of, are not defined in this repo
+			//load the first contour - in contour_analyzer_lib.h
 			load_contour(contour_filename, &cs);
+			
+			if (VERBOSE) {
+				printf("Loaded contour [i==0 case]. \n");	
+			}
 			for (int j = 0; j < SAMPLE; j++)
 			{
 				old_contour[2*j] = cs.contour[2*j*cs.max_i/SAMPLE];
 				old_contour[2*j + 1] = cs.contour[2*j*cs.max_i/SAMPLE + 1];
 			}
+			
+			if (VERBOSE) {
+				printf("Done for loop [i==0 case]. \n");	
+			}
+			
 			contour_center(&cs, new_center);
+			
+			if (VERBOSE) {
+				printf("contour_centered() [i==0 case]. \n");	
+			}
+			
 			ct_st.center->x = new_center[0];
 			ct_st.center->y = new_center[1];
 		}
-
+		
+		if (VERBOSE) {
+			printf("Finished i==0 case. \n");	
+		}
+	
 		image_array(&frame, ct_st.im_array);
-
+		
+		if (VERBOSE) {
+			printf("image_array() completed successfully. \n");	
+		}
 		
 		
 		//No way around it. Need to save old contour points for sampling elsewhere.
@@ -157,6 +197,10 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 				break;
 			}
 		}
+		
+		if (VERBOSE) {
+			printf("for loop completed. \n");	
+		}
 
 		if (ct_st.max_i == -1) //Bad frame
 		{
@@ -170,8 +214,17 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 				old_contour[2*j + 1] = ct_st.contour_fine[2*j*ct_st.max_i/SAMPLE + 1];
 			}
 		}
+		
+		if (VERBOSE) {
+			printf("about to save_contour(). \n");	
+		}
 		save_contour(contour_filename_new, ct_st); //Save everything
-
+		
+		if (VERBOSE) {
+			printf("contour_saved(). \n");	
+		}
+		
+		
 		//This is just to print stuff out
 		if (i == 0)
 		{

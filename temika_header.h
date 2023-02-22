@@ -328,7 +328,8 @@ struct camera_frame_struct {
         uint32_t max_size_x; // Sensor size
         uint32_t max_size_y;
 
-        uint8_t *image; //Image pointer
+        uint8_t *image; //Image pointer // JAMIE - curious if this is causing my segmentation fault. Removing the pointer does not compile
+	// original line, in case I change it: uint8_t *image;
 };
 
 void iidc_to_frame(struct iidc_save_struct *iidc, struct camera_frame_struct *frame) {
