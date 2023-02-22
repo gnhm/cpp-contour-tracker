@@ -4,12 +4,11 @@
 #include "get_movie_frame.h"
 #include <string.h>
 #include "contour_tracker-trackmovie_lib.h"
-#include "contour_analyzer-trackmovie_lib.h"
+//#include "contour_analyzer-trackmovie_lib.h"
+#include"contour_tracker_lib.h"
 
 #define SAMPLE 10
-
 #define I_MAX 10000
-
 #define VERBOSE 1
 
 int main(int argc, char **argv)
@@ -21,10 +20,14 @@ int main(int argc, char **argv)
 		printf("Tracking %s\n", moviefile);
 	}
 
-	struct camera_frame_struct frame; //Temika frame struct
+	struct camera_frame_struct frame; //Temika frame struct - I don't think my laptop is happy with it
 	long offset = 0; //Keep track of movie position
 	int i = 0; //Frames opened so far
 	int bad_frames = 0; //Frames which were untracked
+	
+	if (VERBOSE) {
+		printf("Initialisation completed");
+	}
 
 	const char *movie_ext = ".movie";
 
@@ -34,6 +37,7 @@ int main(int argc, char **argv)
 	char *p = strstr(contour_filename, movie_ext);
 	*p = '\0';
 	strcat(contour_filename, "_contour.txt");
+	
 
 	//Makes the full contour_filename based on movie filename
 	char contour_filename_new[1000];
@@ -41,8 +45,12 @@ int main(int argc, char **argv)
 	char *p_new = strstr(contour_filename_new, movie_ext);
 	*p_new = '\0';
 	strcat(contour_filename_new, "_contour_full.txt");
+	
+	if (VERBOSE) {
+		printf("Filenames created");
+	}
 
-	//Initialize the contour tracking struct
+	//Initialize the contour tracking struct, from the struct definition in tracker-trackmovie_lib.h
 	struct ct::ContourStruct ct_st;
 	ct_st.max = 1000;
 	ct_st.burn = 10;
@@ -55,17 +63,25 @@ int main(int argc, char **argv)
 	ct_st.center = &center;
 	ct_st.horizontal_window = 5;
 	ct_st.slope_window = 4;
+	
+	if (VERBOSE) {
+		printf("Set up ContourStruct");
+	}
 
-	//This, I hope, can be gotten rid off
+	//This, I hope, can be gotten rid off - may rely on the first contour already being fed in
 	double old_contour[2*SAMPLE];
 
 	double new_center[2];
 	double new_position[2];
-	struct Contour cs;
+	struct Contour cs; // from the struct defined in analyzer-trackmovie_lib.h
 
 	//For fancy printing
 	int characters = 0;
-
+	
+	if (VERBOSE) {
+		printf("About to try opening the file:");
+	}
+	
 	//Try opening the file
 	FILE *file;
 	if ( !( file = fopen(moviefile, "rb" ) ) )
@@ -73,12 +89,22 @@ int main(int argc, char **argv)
 		printf( "Couldn't open movie file.\n" );
 		exit( EXIT_FAILURE );
 	}
+	
+	// proceed if the files open successfully
         fseek(file, 0, SEEK_SET);
-
-	while(((offset = get_next_frame(file, &frame)) != -1) && i < I_MAX)
+	
+	if (VERBOSE) {
+		printf("Getting to first while loop");
+	}
+	
+	while(((offset = get_next_frame(file, &frame)) != -1) && i < I_MAX) // the get_next_frame takes some apparently undefined struct as it second arg;
+		// work out what frame means here (if it isn't obvious)
 	{
-		if (i == 0)
+		if (i == 0) // this is the important section, see equivalent on track_contours
 		{
+			if (VERBOSE) {
+				printf("Starting if (i==0)");
+			}
 			//allocate the image array based on first frame. This will break if frames can change (easy fix, but it never happens)
 			ct_st.rows = frame.size_x;
 			ct_st.cols = frame.size_y;
@@ -86,7 +112,7 @@ int main(int argc, char **argv)
 
 			//load the seed contour (not all. just a subset of size SAMPLE). Write to old_contour (why?). Get the contour_center.
 
-			load_contour(contour_filename, &cs);
+			load_contour(contour_filename, &cs); // working on this atm
 			for (int j = 0; j < SAMPLE; j++)
 			{
 				old_contour[2*j] = cs.contour[2*j*cs.max_i/SAMPLE];
@@ -124,7 +150,11 @@ int main(int argc, char **argv)
 				break;
 			}
 		}
-
+		
+		if (VERBOSE) {
+			printf("Finished for loop iteration");
+		}
+		
 		if (ct_st.max_i == -1) //Bad frame
 		{
 				bad_frames++;

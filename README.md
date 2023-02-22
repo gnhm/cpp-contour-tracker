@@ -1,0 +1,32 @@
+README for jamie branch. Aim: produce the text file contour as in Guil's sample. NB currently much easier to work with c++ on my own laptop as windows is annoying
+(and no visual studio etc)
+
+
+Initial thoughts: temika_header probably not needed for local work, not sure what 
+the makefile and the shell script are for. It seems the `trackmovie` libs are used in `track_movie.cpp`. 
+Remember all .h files are "headers" (and therefore don't contain any actions?) and .cpp are "source files".
+Also the trackmovie libs seem to be more general versions of the non-trackmovie versions (check this)
+
+Will need to isolate modules from actual scripts that are running something, just as in the python case
+
+Good chance to get back into c++!
+
+
+31/1/22
+
+Not sure (intuitively) what is the difference between track_contours and track_movie... surely the contours have to be tracked over a few frames? Unless the first one is setting up the (multiple for multiple modes) contours in a single frame...
+
+Contour_analyzer_lib only has one function: `void analyze_contour(double *c, int n)` and also has some TODOs at the beginning.
+
+
+The `makefile` can be executed with the `make` command, and currently seems to only compile track_movie (successfully!). Running this executable for the sample movie then always returns `Segmentation fault (core dumped)` :(
+
+
+
+Spoke to Guil just before lunch:
+- `track_contours` is for doing it in real time from temika
+- track_movie already compiles, and goes from an initial contour (see `_contour.txt` files which are generated using that initial if statement)
+- the contour struct is in the -trackmovie versions of the header although it is really very small! 
+
+Post-lunch update: everything is compiling, but when passing sample movie file as argument the core dumps. Will need first contour for `track_movie`, in the form 
+of a text file. Working on making that now (should just need a center and a point on the edge). Study the algorithm!
