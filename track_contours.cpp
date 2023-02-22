@@ -38,9 +38,9 @@ Try the makefile.
 #include"temika_header.h" // hoping this won't be needed
 #include"get_movie_frame.h" // no need to compile headers
 #include<string.h> 
-//#include"contour_analyzer-trackmovie_lib.h" 
+#include"contour_analyzer_lib.h" 
 // maybe it was meant to be this one!!
-#include"contour_tracker_lib.h" // 
+//#include"contour_tracker_lib.h"
 
 #define SAMPLE 10
 
@@ -106,7 +106,7 @@ int track_contour(char* moviefile) // this is a function which (I think) returns
 		exit( EXIT_FAILURE );
 	}
 
-	while(( (  offset = get_frame(file, &frame)  ) != -1) && i < I_MAX) // was a third argument in get_frame() of "offset"
+	while(((offset = get_frame(file, &frame)) != -1) && i < I_MAX)
 	{
 		if (i == 0)
 		{ // this whole statement cannot be completed. Work out what it does and if it's necessary.
